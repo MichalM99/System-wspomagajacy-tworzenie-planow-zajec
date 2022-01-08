@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel logowania</title>
+    <link href="{% static "css/base.css" %}" rel="stylesheet">
+</head>
+
+<body>
+<div id="header">
+{% if request.user.is_authenticated %}
+    Zalogowany jako: {{ request.user.first_name }} {{ request.user.last_name }}
+    <a href="{% url "logout" %}">Wyloguj</a>
+{% endif %}
+</div>
+
+<div id="content">
+{% block content %}
+
+{% endblock %}
+</div>
+</body>
+</html>
