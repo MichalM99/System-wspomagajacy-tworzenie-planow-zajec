@@ -8,10 +8,27 @@
 }
 .login-input {
   padding: 1rem;
+  margin-top: 0.5rem;
   margin-bottom: 1rem;
   margin-right: 1rem;
 }
 
 h1 {
+  display: inline-block;
+  padding: 1rem 1rem 0 1rem;
   color: #39C0ED;
+  border-left: 2px solid #39C0ED;
+  border-top: 2px solid #39C0ED;
 }
+
+#id_email {
+  padding: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  margin-right: 1rem;
+}
+
+p {
+  padding: 0.5rem;
+}
+
