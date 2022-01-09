@@ -7,7 +7,8 @@
 {% endblock %}
 
 {% block content %}
-<h1>Logowanie</h1>
+    {% load crispy_forms_tags %}
+<h1>Panel logowania</h1>
     {% if form.errors %}
     <p>
         Podane dane są nieprawidłowe.
@@ -16,11 +17,12 @@
     {% endif %}
     <div class="login-form">
     <form action="{% url 'login' %}" method="post">
-        {{ form.as_p }}
+        {{ form.username }}
+        {{ form.password}}
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ next }}"/>
-        <p><input type="submit" value="Zaloguj"></p>
-        <p><a href="{% url "password_reset" %}">Zapomniałeś hasła?</a></p>
+        <p><input class="btn btn-info" type="submit" value="Zaloguj"></p>
+        <p><a class="btn btn-outline-info" href="{% url "password_reset" %}">Zapomniałeś hasła?</a></p>
     </form>
     </div>
 {% endblock %}
