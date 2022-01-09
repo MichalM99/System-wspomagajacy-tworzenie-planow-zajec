@@ -34,7 +34,7 @@ class Lecture(models.Model):
 
 
 class ScheduleItem(models.Model):
-    schedule = models.ForeignKey(Schedule)
+    schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE)
     from_hour = models.TimeField()
@@ -56,7 +56,7 @@ class Room(models.Model):
 
 
 class RoomItem(models.Model):
-    room = models.ForeignKey(Room)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
     schedule_item = models.ForeignKey(ScheduleItem, on_delete=models.CASCADE)
 
 
