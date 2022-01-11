@@ -3,8 +3,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  border-bottom: 2px solid #39C0ED;
-  border-right: 2px solid #39C0ED;
+  border-bottom: 0.3rem solid #39C0ED;
+  border-right: 0.3rem solid #39C0ED;
 }
 .login-input {
   padding: 1rem;
@@ -15,10 +15,18 @@
 
 h1 {
   display: inline-block;
-  padding: 1rem 1rem 0 1rem;
+  padding: 1rem 3rem 0 3rem;
   color: #39C0ED;
-  border-left: 2px solid #39C0ED;
-  border-top: 2px solid #39C0ED;
+  border-left: 0.5rem solid #39C0ED;
+  border-top: 0.5rem solid #39C0ED;
+}
+
+input {
+  margin-left: 1rem;
+}
+
+a {
+  margin-left: 1rem;
 }
 
 #id_email {

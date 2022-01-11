@@ -17,6 +17,7 @@ class Year(models.Model):
 
     class Meta:
         verbose_name = 'rok'
+        verbose_name_plural = 'kierunki'
 
 
 class Group(models.Model):
@@ -27,6 +28,7 @@ class Group(models.Model):
 
     class Meta:
         verbose_name = 'grupa'
+        verbose_name_plural = 'grupy'
 
 
 class Lecture(models.Model):
@@ -53,6 +55,7 @@ class Room(models.Model):
 
     class Meta:
         verbose_name = 'sala'
+        verbose_name_plural = 'sale'
 
 
 class RoomItem(models.Model):

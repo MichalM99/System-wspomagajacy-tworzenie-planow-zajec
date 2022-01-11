@@ -1,6 +1,62 @@
 {% extends "base.html" %}
 {% block title %}Panel główny{% endblock %}
+{% load static %}
+
+{% block css %}
+<link rel='stylesheet' href="{% static 'css/dashboard.css' %}" type="text/css"/>
+{% endblock %}
 
 {% block content %}
-<h1>Panel główny</h1>
+<div class="sidebar-container">
+  <div class="sidebar-logo">
+            <img id=""src="{% static 'images/timetable.png' %}" alt="timetable logo">
+  </div>
+  <ul class="sidebar-navigation">
+    <li class="header">Menu</li>
+    <li>
+      <a href="{% url 'dashboard' %}">
+        <i class="fa fa-home" aria-hidden="true"></i> Panel główny
+      </a>
+    </li>
+    <li>
+      <a href="#">
+        <i class="fa fa-tachometer" aria-hidden="true"></i> Preferencje
+      </a>
+    </li>
+    <li class="header">Zalogowany jako: <span id="loggedas">{{ request.user.first_name }} {{ request.user.last_name }}</span></li>
+    <li>
+      <a href="#">
+        <i class="fa fa-users" aria-hidden="true"></i> Konto
+      </a>
+    </li>
+    <li>
+      <a href="#">
+        <i class="fa fa-cog" aria-hidden="true"></i> Ustawienia
+      </a>
+    </li>
+    <li>
+        <a href="{% url "logout" %}">
+        <i class="fa fa-info-circle" aria-hidden="true"></i> Wyloguj
+      </a>
+    </li>
+      </li>
+      {% if user.is_staff %}
+    <li class="header">Panel administratora</li>
+      <li>
+      <a href="{% url "register" %}">
+        <i class="fa fa-cog" aria-hidden="true"></i> Dodaj użytkowników
+      </a>
+      </li>
+      {% endif %}
+  </ul>
+</div>
+<div class="content-container">
+  <div class="container-fluid">
+      {% block screen %}
+
+      {% endblock %}
+  </div>
+</div>
+
+
 {% endblock %}

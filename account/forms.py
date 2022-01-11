@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UsernameField
-
+from django.contrib.auth.models import User
+from account import utils
 
 class UserLoginForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
@@ -14,3 +15,23 @@ class UserLoginForm(AuthenticationForm):
             'placeholder': 'Hasło',
         }
 ))
+
+
+
+class UserRegistrationForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email')
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if email and User.objects.filter(email=email).count():
+            raise forms.ValidationError('Użytkownik o tym adresie email już istnieje!')
+        return email
+
+    def save(self, commit=True):
+        user = super(UserRegistrationForm, self).save(commit=False)
+        user.username = utils.create_username(self.cleaned_data['first_name'], self.cleaned_data['last_name'])
+        if commit:
+            user.save()
+        return user

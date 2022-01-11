@@ -7,3 +7,6 @@ class Profile(models.Model):
     phone_number = models.CharField(max_length=12)
     academic_degree = models.CharField(max_length=30)
 
+    class Meta:
+        verbose_name = 'wykładowca'
+        verbose_name_plural = 'wykładowcy'

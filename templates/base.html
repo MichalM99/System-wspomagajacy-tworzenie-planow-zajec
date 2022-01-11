@@ -16,10 +16,7 @@
 
 <body>
 <div id="header">
-{% if request.user.is_authenticated %}
-    Zalogowany jako: {{ request.user.first_name }} {{ request.user.last_name }}
-    <a href="{% url "logout" %}">Wyloguj</a>
-{% endif %}
+
 </div>
 
 <div id="content">
