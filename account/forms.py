@@ -39,10 +39,18 @@ class UserRegistrationForm(forms.ModelForm):
 
 
 class UserEditForm(forms.ModelForm):
-    model = User
-    fields = ('first_name', 'last_name', 'email')
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email')
 
 
 class ProfileEditForm(forms.ModelForm):
-    model = Profile
-    fields = ('phone_number', 'academic_deegree')
+    class Meta:
+        model = Profile
+        fields = ('phone_number', 'academic_degree')
+
+    def __init__(self, *args, **kwargs):
+        super(ProfileEditForm, self).__init__(*args, **kwargs)
+        self.fields['academic_degree'].widget.attrs.update({
+            'class': 'form-control-sm'
+        })

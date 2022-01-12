@@ -6,7 +6,7 @@ from account.models import Profile
 # Register your models here.
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ['user', 'phone_number', 'academic_deegree']
+    list_display = ['user', 'phone_number', 'academic_degree']
 
 
 admin.site.register(schedule.models.Schedule)

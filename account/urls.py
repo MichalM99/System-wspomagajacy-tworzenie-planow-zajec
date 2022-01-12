@@ -25,6 +25,6 @@ urlpatterns = [
          auth_views.PasswordChangeDoneView.as_view(),
          name='password_change_done'),
     path('dashboard/register/', views.register, name='register'),
-    path('account/account_details/', views.account_details, name='account_details'),
+    path('account/account_details/', views.edit_profile, name='account_details'),
 ]
 
