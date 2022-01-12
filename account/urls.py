@@ -4,7 +4,7 @@ from account.forms import UserLoginForm
 from account import views
 
 urlpatterns = [
-    path('', auth_views.LoginView.as_view(authentication_form=UserLoginForm), name='login'),
+    path('', auth_views.LoginView.as_view(authentication_form=UserLoginForm, redirect_authenticated_user=True), name='login'),
     path('logout', auth_views.LogoutView.as_view(), name='logout'),
     path('password_reset/',
          auth_views.PasswordResetView.as_view(),
