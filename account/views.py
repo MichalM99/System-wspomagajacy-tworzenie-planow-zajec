@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, login
 from django.core.mail import send_mail
 from account import utils
+from .models import Profile
 from account.forms import UserRegistrationForm
 from django.contrib import messages
 
@@ -14,6 +15,7 @@ def register(request):
             generated_password = utils.get_random_password()
             new_user.set_password(generated_password)
             new_user.save()
+            Profile.objects.create(user=new_user)
             cd = user_form.cleaned_data
             email_list = []
             email_list.append(cd['email'])
