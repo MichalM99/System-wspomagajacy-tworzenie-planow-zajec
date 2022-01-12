@@ -1,6 +1,7 @@
 from django.db import models
+from django.contrib.auth.models import User
 from account.models import Profile
-
+import datetime as dt
 
 class Schedule(models.Model):
     schedule_name = models.CharField(verbose_name='nazwa planu', max_length=100)
@@ -64,27 +65,30 @@ class RoomItem(models.Model):
 
 
 class LecturerItem(models.Model):
-    lecturer = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    lecturer = models.ForeignKey(User, on_delete=models.CASCADE)
     schedule_item = models.ForeignKey(ScheduleItem, on_delete=models.CASCADE)
 
 
 DAYS_OF_WEEK = (
-    (0, 'Monday'),
-    (1, 'Tuesday'),
-    (2, 'Wednesday'),
-    (3, 'Thursday'),
-    (4, 'Friday'),
-    (5, 'Saturday'),
-    (6, 'Sunday'),
+    (0, 'Poniedziałek'),
+    (1, 'Wtorek'),
+    (2, 'Środa'),
+    (3, 'Czwartek'),
+    (4, 'Piątek'),
+    (5, 'Sobota'),
+    (6, 'Niedziela'),
 )
 
 
 class WeekDay(models.Model):
-    lecturer = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    lecturer = models.ForeignKey(User, on_delete=models.CASCADE)
     weekday = models.IntegerField(choices=DAYS_OF_WEEK)
+
+    def __str__(self):
+        return DAYS_OF_WEEK[self.weekday][1]
 
 
 class LecturerAvailability(models.Model):
     weekday = models.ForeignKey(WeekDay, on_delete=models.CASCADE)
-    from_hour = models.TimeField()
-    to_hour = models.TimeField()
+    from_hour = models.TimeField(default=dt.time(00, 00))
+    to_hour = models.TimeField(default=dt.time(00, 00))
