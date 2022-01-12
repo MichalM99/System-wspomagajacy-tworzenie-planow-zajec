@@ -5,9 +5,9 @@
 
 {% block screen %}
 <div class="card">
-  <h5 class="card-header">Konto {{ user.first_name }} {{ user.last_name }}</h5>
+  <h5 class="card-header">Konto </h5>
   <div class="card-body">
-      <a class="btn btn-info" id="registerbutton" href="" value="Zmień hasło">
+      <a class="btn btn-info" id="registerbutton" href="{% url "password_change" %}">Zmień hasło</a>
   </div>
 </div>
 {% endblock %}

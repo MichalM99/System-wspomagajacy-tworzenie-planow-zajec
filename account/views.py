@@ -28,3 +28,7 @@ def register(request):
         user_form = UserRegistrationForm()
     return render(request, 'dashboard/registeruser.html',
                       {'user_form': user_form})
+
+
+def account_details(request):
+    return render(request, 'account/account_details.html')

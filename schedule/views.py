@@ -2,6 +2,8 @@ from django.shortcuts import render
 from schedule.forms import AddAvailabilityForm
 from schedule.models import WeekDay
 from schedule.models import LecturerAvailability
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
 
 
 
@@ -30,10 +32,14 @@ def set_preferences(request):
     return render(request, 'schedule/set_preferences.html',
                       {'form': form, 'availability': availability})
 
+def delete_availability(request, id):
+    query = WeekDay.objects.get(id=id)
+    query.delete()
+    return redirect(request.META['HTTP_REFERER'])
 
 def get_availability(request):
     """Returns availability list for current logged user/lecturer."""
-    weekdays = WeekDay.objects.filter(lecturer=request.user)
+    weekdays = WeekDay.objects.filter(lecturer=request.user).order_by('weekday')
     availability_list = []
     for weekday in weekdays:
         availability_list.append(LecturerAvailability.objects.filter(weekday=weekday))

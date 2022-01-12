@@ -1,15 +1,20 @@
 {% extends "dashboard/dashboard.html" %}
 {% block title %}Ustalanie preferencji godzinowych{% endblock %}
 {% load static %}
-{% load crispy_forms_tags %}
+{% block css %}
+    <link rel='stylesheet' href="{% static 'css/schedule/set_preferences.css' %}" type="text/css"/>
+{% endblock %}
+
+
 
 {% block screen %}
     <div class="card">
-      <h5 class="card-header">Twoje preferencje godzinowe: </h5>
+      <h5 class="card-header">Twoje preferencje godzinowe </h5>
       <div class="card-body">
           {% for x in availability %}
               {% for y in x %}
-              <p>{{ y.weekday }} {{ y.from_hour }} - {{ y.to_hour }}</p>
+              <p class="availability btn btn-outline-info">{{ y.weekday }} {{ y.from_hour }} - {{ y.to_hour }}
+                  <a href="{% url 'delete_availability' id=y.weekday.id %}"><img id="binicon" src="{% static 'images/delete_avail.png' %}"></a></p>
               {% endfor %}
           {% endfor %}
       </div>
@@ -23,7 +28,7 @@
               {{ form.to_hour }}
               <p>{{ error }}</p>
               {% csrf_token %}
-          <input class="btn btn-info" id="registerbutton" type="submit" value="Dodaj preferencje">
+          <input class="btn btn-info" id="setprefbutton" type="submit" value="Dodaj preferencje">
           </form>
       </div>
     </div>

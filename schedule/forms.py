@@ -15,9 +15,15 @@ DAYS_OF_WEEK = (
 )
 
 class AddAvailabilityForm(forms.Form):
-    weekday = forms.IntegerField(widget=forms.Select(choices=DAYS_OF_WEEK))
-    HOURS_LIST = generate_hours(15, 8, 10)
-    from_hour = forms.TimeField(widget=forms.Select(choices=HOURS_LIST))
-    to_hour = forms.TimeField(widget=forms.Select(choices=HOURS_LIST))
+    weekday = forms.IntegerField(widget=forms.Select(choices=DAYS_OF_WEEK, attrs={
+        'class': 'form-control-sm'
+    }))
+    HOURS_LIST = generate_hours(15, 8, 22)
+    from_hour = forms.TimeField(widget=forms.Select(choices=HOURS_LIST, attrs={
+        'class': 'form-control-sm'
+    }))
+    to_hour = forms.TimeField(widget=forms.Select(choices=HOURS_LIST, attrs={
+        'class': 'form-control-sm'
+    }))
 
 

@@ -3,13 +3,14 @@
 {% load static %}
 
 {% block css %}
-<link rel='stylesheet' href="{% static 'css/dashboard.css' %}" type="text/css"/>
+
 {% endblock %}
 
 {% block content %}
+    <link rel='stylesheet' href="{% static 'css/dashboard.css' %}" type="text/css"/>
 <div class="sidebar-container">
   <div class="sidebar-logo">
-            <img id=""src="{% static 'images/timetable.png' %}" alt="timetable logo">
+            <img id="" src="{% static 'images/timetable.png' %}" alt="timetable logo">
   </div>
   <ul class="sidebar-navigation">
     <li class="header">Menu</li>
@@ -20,12 +21,12 @@
     </li>
     <li>
       <a href="{% url "set_preferences" %}">
-        <i class="fa fa-tachometer" aria-hidden="true"></i> Preferencje
+        <i class="fa fa-tachometer" aria-hidden="true"></i> Edytuj preferencje godzinowe
       </a>
     </li>
     <li class="header">Zalogowany jako: <span id="loggedas">{{ request.user.first_name }} {{ request.user.last_name }}</span></li>
     <li>
-      <a href="#">
+      <a href="{% url "account_details" %}">
         <i class="fa fa-users" aria-hidden="true"></i> Konto
       </a>
     </li>
