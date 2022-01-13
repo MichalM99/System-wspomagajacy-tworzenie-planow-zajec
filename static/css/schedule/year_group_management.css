@@ -1,0 +1,12 @@
+#searchbutton {
+    margin-left: 1rem;
+}
+
+.pagbtn {
+    margin: 1rem 0.5rem;
+}
+
+.managebtn {
+    position: absolute;
+    left: 25rem;
+}

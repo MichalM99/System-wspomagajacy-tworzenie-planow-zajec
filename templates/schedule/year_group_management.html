@@ -1,0 +1,50 @@
+{% extends "dashboard/dashboard.html" %}
+{% block title %}Zarządzanie jednostkami{% endblock %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block css %}
+    <link rel='stylesheet' href="{% static 'css/schedule/year_group_management.css' %}" type="text/css"/>
+{% endblock %}
+
+{% block screen %}
+<div class="card">
+  <h5 class="card-header">Zarządzanie kierunkami/grupami</h5>
+  <div class="card-body">
+      <form method="get">
+          <p>{{ form.query.label }}</p>
+          <p>{{ form.query }}<input id="searchbutton" class="btn btn-info" type="submit" value="Wyszukaj"></p>
+
+      </form>
+
+
+          <ul class="list-group">
+              {% for year in page_obj %}
+                  <li class="list-group-item">{{ year.year_name }} {{ year.speciality }} {{ year.year_period }}
+                  <a class="btn btn-info btn-sm managebtn" href="#">Zarządzaj kierunkiem</a></li>
+              {% empty %}
+                  <p>Brak wyników dla podanego wyszukiwania</p>
+              {% endfor %}
+          </ul>
+          <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a class="pagbtn btn btn-info" href="?page=1">pierwsza</a>
+                    <a class="pagbtn btn btn-info" href="?page={{ page_obj.previous_page_number }}">poprzednia</a>
+                {% endif %}
+
+                <span class="current">
+                    Strona {{ page_obj.number }} z {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a class="pagbtn btn btn-info" href="?page={{ page_obj.next_page_number }}">następna</a>
+                    <a class="pagbtn btn btn-info" href="?page={{ page_obj.paginator.num_pages }}">ostatnia</a>
+                {% endif %}
+            </span>
+        </div>
+
+
+      <a href="{% url "add_year" %}" class="btn btn-info" id="registerbutton" type="submit">Dodaj rok/kierunek</a>
+  </div>
+</div>
+{% endblock %}

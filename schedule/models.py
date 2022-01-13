@@ -14,11 +14,18 @@ class Schedule(models.Model):
 
 class Year(models.Model):
     year_name = models.CharField(verbose_name='kierunek', max_length=100)
-
+    speciality = models.CharField(verbose_name='Specjalność', max_length=50)
+    year_period = models.CharField(verbose_name='Rok akademicki (yyyy/yyyy)', max_length=9,
+                                   default=str((dt.datetime.now() - dt.timedelta(days=365)).year) + '/' + str(dt.datetime.now().year))
+    type_of_semester = models.CharField(max_length=100, default='letni', verbose_name='Rodzaj semestru')
+    type_of_studies = models.CharField(max_length=100, default='stacjonarne', verbose_name='Tok studiów')
 
     class Meta:
         verbose_name = 'rok'
         verbose_name_plural = 'kierunki'
+
+    def __str__(self):
+        return self.year_name + ' ' +  self.year_period + ' ' + self.type_of_semester + ' ' + self.type_of_studies
 
 
 class Group(models.Model):
@@ -30,6 +37,9 @@ class Group(models.Model):
     class Meta:
         verbose_name = 'grupa'
         verbose_name_plural = 'grupy'
+
+    def __str__(self):
+        return self.year.year_name + ', grupa nr ' + self.group_number + ', liczebność: ' + self.quantity
 
 
 class Lecture(models.Model):

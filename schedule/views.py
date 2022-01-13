@@ -1,9 +1,15 @@
 from django.shortcuts import render
-from schedule.forms import AddAvailabilityForm
+from schedule.forms import AddAvailabilityForm, AddYear, AddGroup, SearchYear
 from schedule.models import WeekDay
 from schedule.models import LecturerAvailability
+from schedule.models import Year, Group
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+from django.views.generic import ListView
+from django.db.models import Q
+from django.core.paginator import Paginator
 
 
 
@@ -33,6 +39,7 @@ def set_preferences(request):
                       {'form': form, 'availability': availability})
 
 def delete_availability(request, id):
+    """Deletes single availability based on pk."""
     query = WeekDay.objects.get(id=id)
     query.delete()
     return redirect(request.META['HTTP_REFERER'])
@@ -69,3 +76,42 @@ def validate_availability(request, weekday, from_hour, to_hour):
     else:
         return True
 
+
+def year_group_management(request):
+    form = SearchYear()
+    query = None
+    results = []
+    if 'query' in request.GET:
+        form = SearchYear(request.GET)
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            results = Year.objects.filter(
+                Q(year_name__icontains=query) | Q(year_period__icontains=query) | Q(speciality__icontains=query)
+            )
+    else:
+        results = Year.objects.all()
+    paginator = Paginator(results, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'schedule/year_group_management.html', {'form': form,
+                                                                   'query': query,
+                                                                   'page_obj': page_obj})
+
+
+
+
+def add_year(request):
+    if request.method == 'POST':
+        year_form = AddYear(request.POST)
+        if year_form.is_valid():
+            cd = year_form.cleaned_data
+            Year.objects.create(year_name=cd['year_name'], speciality=cd['speciality'], year_period=cd['year_period'],
+                                type_of_studies=cd['type_of_studies'], type_of_semester=cd['type_of_semester'])
+            return redirect(year_group_management)
+    else:
+        year_form = AddYear()
+    return render(request, 'schedule/add_year.html',{'year_form': year_form})
+
+
+def add_group(request):
+    return render(request, 'schedule/add_group.html',{})
