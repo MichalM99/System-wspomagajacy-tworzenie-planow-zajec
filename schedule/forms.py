@@ -1,5 +1,5 @@
 from django import forms
-from schedule.models import Year, Group
+from schedule.models import Year, Group, Room
 from schedule.utils import generate_hours
 import datetime as dt
 
@@ -50,15 +50,12 @@ class AddYear(forms.Form):
     }))
 
 
-
-class AddGroup(forms.ModelForm):
-    class Meta:
-        model = Group
-        fields = ('year', 'quantity', 'group_number')
-
-
 class SearchYear(forms.Form):
-    query = forms.CharField(label='Kierunek/rok/specjalność:')
+    query = forms.CharField(label='Kierunek/rok/specjalność:', required=False)
+
+
+class SearchRoom(forms.Form):
+    query = forms.CharField(label='Nazwa/numer sali:', required=False)
 
 
 class ManageYearForm(forms.ModelForm):
@@ -84,3 +81,17 @@ class AddGroupForm(forms.ModelForm):
     class Meta:
         model = Group
         exclude = ('year',)
+
+
+class AddRoomForm(forms.ModelForm):
+    class Meta:
+        model = Room
+        fields = ('__all__')
+
+
+class EditRoomForm(forms.ModelForm):
+    class Meta:
+        model = Room
+        fields = ('__all__')
+
+

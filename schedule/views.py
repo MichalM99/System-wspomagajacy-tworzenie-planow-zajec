@@ -1,8 +1,9 @@
 from django.shortcuts import render
-from schedule.forms import AddAvailabilityForm, AddYear, AddGroupForm, SearchYear, ManageYearForm
+from schedule.forms import AddAvailabilityForm, AddYear, AddGroupForm, SearchYear, ManageYearForm, AddRoomForm, \
+    SearchRoom, EditRoomForm
 from schedule.models import WeekDay
 from schedule.models import LecturerAvailability
-from schedule.models import Year, Group
+from schedule.models import Year, Group, Room
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.http import JsonResponse
@@ -90,6 +91,8 @@ def year_group_management(request):
             results = Year.objects.filter(
                 Q(year_name__icontains=query) | Q(year_period__icontains=query) | Q(speciality__icontains=query)
             )
+            if query == '':
+                results = Year.objects.all()
     else:
         results = Year.objects.all()
     paginator = Paginator(results, 10)
@@ -145,7 +148,6 @@ def add_group(request, id):
         form = AddGroupForm(request.POST)
         if form.is_valid():
             cd = form.cleaned_data
-            print(check_group_existance(id, cd['group_number']))
             if check_group_existance(id, cd['group_number']):
                 error = "Grupa o podanym numerze już istnieje!"
                 return render(request, 'schedule/add_group.html',
@@ -155,3 +157,86 @@ def add_group(request, id):
     else:
         form = AddGroupForm()
     return render(request, 'schedule/add_group.html',{'form': form, 'id': id})
+
+
+def delete_group(request, id, pk):
+    """Deletes single group based on pk."""
+    query = Group.objects.get(id=id)
+    query.delete()
+    return redirect(request.META['HTTP_REFERER'])
+
+
+def delete_year(request, id):
+    """Deletes single group based on pk."""
+    query = Year.objects.get(id=id)
+    query.delete()
+    return redirect(request.META['HTTP_REFERER'])
+
+
+def check_existing_room(room_name):
+    existing_rooms = Room.objects.filter(room_name=room_name)
+    if existing_rooms:
+        return True
+    else:
+        return False
+
+
+def manage_room(request):
+    search_form = SearchRoom()
+    query = None
+    rooms = []
+    if 'query' in request.GET:
+        search_form = SearchRoom(request.GET)
+        if search_form.is_valid():
+            query = search_form.cleaned_data['query']
+            rooms = Room.objects.filter(room_name=query)
+            if query == '':
+                rooms = Room.objects.all()
+    else:
+        rooms = Room.objects.all()
+    if request.method == "POST":
+        form = AddRoomForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            if check_existing_room(cd['room_name']):
+                error = "Taka sala juz istnieje!"
+                return render(request, 'schedule/manage_room.html',
+                              {'form':form, 'rooms': rooms, 'error': error, 'query': query, 'search_form': search_form})
+            new_room = form.save(commit=False)
+            new_room.save()
+    else:
+        form = AddRoomForm()
+    paginator = Paginator(rooms, 10)
+    page_number = request.GET.get('page')
+    rooms = paginator.get_page(page_number)
+    return render(request, 'schedule/manage_room.html',{
+        'form':form, 'rooms': rooms, 'query': query, 'search_form': search_form
+    })
+
+
+def delete_room(request, id):
+    """Deletes single group based on pk."""
+    query = Room.objects.get(id=id)
+    query.delete()
+    return redirect(request.META['HTTP_REFERER'])
+
+
+def edit_room(request, id):
+    """Functional DetailView for Room model."""
+    data = get_object_or_404(Room, pk=id)
+    room_name = data.room_name
+    if request.method == "POST":
+        form = EditRoomForm(instance=data, data=request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data['room_name']
+            if room_name == cd:
+                print("haha")
+            elif check_existing_room(cd):
+                error = "Taka sala juz istnieje!"
+                return render(request, 'schedule/edit_room.html',
+                              {'form':form, 'error': error})
+            form.save()
+        return redirect("/schedule/manage_room/")
+    else:
+        form = EditRoomForm(instance=data)
+    return render(request, 'schedule/edit_room.html', {'form': form, 'data': data})

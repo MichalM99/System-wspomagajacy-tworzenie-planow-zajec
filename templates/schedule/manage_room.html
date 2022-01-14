@@ -1,0 +1,67 @@
+{% extends "dashboard/dashboard.html" %}
+{% block title %}Zarządzanie salami{% endblock %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block css %}
+    <link rel='stylesheet' href="{% static 'css/schedule/year_group_management.css' %}" type="text/css"/>
+{% endblock %}
+
+{% block screen %}
+    <div class="card">
+      <h5 class="card-header">Lista sal</h5>
+      <div class="card-body">
+          <form method="get">
+              <p>{{ search_form.query.label }}</p>
+              <p>{{ search_form.query }}<input id="searchbutton" class="btn btn-info" type="submit" value="Wyszukaj"></p>
+          </form>
+        <table class="table">
+                  <thead>
+                  <th scope="col">Nazwa/numer</th>
+                  <th scope="col">Pojemność</th>
+                  <th scope="col">Opis</th>
+                  <th scope="col">Opcje</th>
+                  </thead>
+        <tbody>
+            {% for room in rooms %}
+                <tr>
+                        <th scope="row">{{ room.room_name }}</th>
+                        <th> {{ room.capacity }}</th>
+                        <th>{{ room.description }}</th>
+                        <th><a class="btn btn-info btn-sm managebtn" href="{% url 'edit_room' id=room.id %}">Zarządzaj salą</a>
+                        <a class="btn btn-outline-info btn-sm managebtn" href="{% url 'delete_room' id=room.id %}">Usuń salę</a></th>
+                </tr>
+            {% empty %}
+                  <p>Brak wyników dla podanego wyszukiwania</p>
+            {% endfor %}
+        </tbody>
+        </table>
+                <div class="pagination">
+            <span class="step-links">
+                {% if rooms.has_previous %}
+                    <a class="pagbtn btn btn-info" href="?page=1">pierwsza</a>
+                    <a class="pagbtn btn btn-info" href="?page={{ rooms.previous_page_number }}">poprzednia</a>
+                {% endif %}
+
+                <span class="current">
+                    Strona {{ rooms.number }} z {{ rooms.paginator.num_pages }}
+                </span>
+
+                {% if rooms.has_next %}
+                    <a class="pagbtn btn btn-info" href="?page={{ rooms.next_page_number }}">następna</a>
+                    <a class="pagbtn btn btn-info" href="?page={{ rooms.paginator.num_pages }}">ostatnia</a>
+                {% endif %}
+            </span>
+        </div>
+      </div>
+    <div class="card">
+      <h5 class="card-header">Dodaj salę</h5>
+      <div class="card-body">
+        <form action="." method="post">
+            {{ form|crispy }}
+            <p>{{ error }}</p>
+            {% csrf_token %}
+            <input class="btn btn-info" id="registerbutton" type="submit" value="Dodaj salę">
+        </form>
+
+      </div>
+{% endblock %}

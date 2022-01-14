@@ -60,7 +60,7 @@ class ScheduleItem(models.Model):
 
 class Room(models.Model):
     room_name = models.CharField(verbose_name='nazwa sali', max_length=100)
-    capacity = models.IntegerField()
+    capacity = models.IntegerField(verbose_name='pojemnosc')
     description = models.TextField(verbose_name='opis sali', max_length=255)
 
 

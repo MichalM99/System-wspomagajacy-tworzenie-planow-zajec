@@ -31,8 +31,7 @@
                         <th scope="row">{{ group.group_number }}</th>
                         <th> {{ group.quantity }}</th>
                         <th>
-                            <a href="#" class="btn btn-info" type="submit">Zarządzaj grupą</a>
-                            <a href="#" class="btn btn-outline-info" type="submit">Usuń grupę</a>
+                            <a href="{% url 'delete_group' id=group.id pk=data.id %}" class="btn btn-outline-info" type="submit">Usuń grupę</a>
                         </th>
                     </tr>
               {% endfor %}

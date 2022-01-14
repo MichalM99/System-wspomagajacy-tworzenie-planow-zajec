@@ -27,9 +27,8 @@ def register(request):
             message = 'Konto użytkownika {} {} zostało założone w SWTPZ\nOto dane potrzebne do logowania: \n' \
                       'Login: {}\nHasło: {}'.format(cd['first_name'], cd['last_name'], new_user, generated_password)
             send_mail(subject, message, 'zswtpz@gmail.com', email_list)
-            context = {'foo': 'bar'}
             return render(request, 'dashboard/register_complete.html',
-                          {'context': context})
+                          {})
     else:
         user_form = UserRegistrationForm()
     return render(request, 'dashboard/registeruser.html',

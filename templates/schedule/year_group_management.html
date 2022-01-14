@@ -25,16 +25,17 @@
                   <th scope="col">Rok akademicki</th>
                   <th scope="col">Opcje</th>
                   </thead>
+                                <tbody>
               {% for year in page_obj %}
 
-                  <tbody>
+
                     <tr>
                         <th scope="row">{{ year.year_name }}</th>
                         <th> {{ year.type_of_studies }}</th>
                         <th>{{ year.speciality }}</th>
                         <th>{{ year.year_period }} {{ year.type_of_semester }}</th>
                         <th><a class="btn btn-info btn-sm managebtn" href="{% url 'manage_year' id=year.id %}">Zarządzaj kierunkiem</a>
-                        <a class="btn btn-outline-info btn-sm managebtn" href="#">Usuń kierunek</a></th>
+                        <a class="btn btn-outline-info btn-sm managebtn" href="{% url 'delete_year' id=year.id %}">Usuń kierunek</a></th>
                     </tr>
               {% empty %}
                   <p>Brak wyników dla podanego wyszukiwania</p>
