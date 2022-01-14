@@ -56,7 +56,31 @@ class AddGroup(forms.ModelForm):
         model = Group
         fields = ('year', 'quantity', 'group_number')
 
+
 class SearchYear(forms.Form):
     query = forms.CharField(label='Kierunek/rok/specjalność:')
 
 
+class ManageYearForm(forms.ModelForm):
+    class Meta:
+        model = Year
+        fields = ('year_name', 'speciality', 'year_period', 'type_of_studies', 'type_of_semester')
+        widgets = {
+            'type_of_studies': forms.Select(choices=TYPE_OF_STUDIES, attrs={'class': 'form-control-sm'}),
+            'type_of_semester': forms.Select(choices=SEMESTER_CHOICES, attrs={'class': 'form-control-sm'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(ManageYearForm, self).__init__(*args, **kwargs)
+        self.fields['type_of_studies'].widget.attrs.update({
+            'class': 'form-control-sm'
+        })
+        self.fields['type_of_semester'].widget.attrs.update({
+             'class': 'form-control-sm'
+        })
+
+
+class AddGroupForm(forms.ModelForm):
+    class Meta:
+        model = Group
+        exclude = ('year',)

@@ -6,6 +6,7 @@ urlpatterns = [
     path('schedule/set_preferences/delete/<int:id>/', views.delete_availability, name='delete_availability'),
     path('yg_management/', views.year_group_management, name='yg_management'),
     path('add_year/', views.add_year, name='add_year'),
-    path('add_group/', views.add_group, name='add_group'),
+    path('add_group/<int:id>/', views.add_group, name='add_group'),
+    path('manage_year/<int:id>/', views.manage_year, name='manage_year'),
 ]
 

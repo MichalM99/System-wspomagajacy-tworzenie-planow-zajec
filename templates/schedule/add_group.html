@@ -4,10 +4,15 @@
 {% load crispy_forms_tags %}
 
 {% block screen %}
-<div class="card">
-  <h5 class="card-header">Dodaj grupę</h5>
-  <div class="card-body">
-
-  </div>
-</div>
+    <div class="card">
+      <h5 class="card-header">Dodaj grupę</h5>
+      <div class="card-body">
+          <form action="." method="post">
+                {{ form|crispy }}
+              <p>{{ error }}</p>
+              {% csrf_token %}
+              <a href="{% url "manage_year" id=id %}" class="btn btn-info" id="registerbutton" type="submit">Powrót</a>
+              <input class="btn btn-info" id="registerbutton" type="submit" value="Dodaj grupę">
+          </form>
+      </div>
 {% endblock %}

@@ -39,7 +39,7 @@ class Group(models.Model):
         verbose_name_plural = 'grupy'
 
     def __str__(self):
-        return self.year.year_name + ', grupa nr ' + self.group_number + ', liczebność: ' + self.quantity
+        return self.year.year_name + ', grupa nr ' + str(self.group_number) + ', liczebność: ' + str(self.quantity)
 
 
 class Lecture(models.Model):

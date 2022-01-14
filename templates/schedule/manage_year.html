@@ -1,0 +1,44 @@
+{% extends "dashboard/dashboard.html" %}
+{% block title %}Zarządzaj kierunkiem{% endblock %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block screen %}
+<div class="card">
+  <h5 class="card-header">Zarządzaj kierunkiem</h5>
+  <div class="card-body">
+      <form action="." method="post">
+            {{ form|crispy }}
+          {% csrf_token %}
+          <input class="btn btn-info" id="registerbutton" type="submit" value="Zapisz zmiany">
+      </form>
+
+  </div>
+</div>
+<div class="card">
+  <h5 class="card-header">Grupy powiązane z kierunkiem</h5>
+  <div class="card-body">
+              <table class="table">
+                  <thead>
+                  <th scope="col">Numer grupy</th>
+                  <th scope="col">Liczebność</th>
+                  <th scope="col">Opcje</th>
+                  </thead>
+              {% for group in groups %}
+
+                  <tbody>
+                    <tr>
+                        <th scope="row">{{ group.group_number }}</th>
+                        <th> {{ group.quantity }}</th>
+                        <th>
+                            <a href="#" class="btn btn-info" type="submit">Zarządzaj grupą</a>
+                            <a href="#" class="btn btn-outline-info" type="submit">Usuń grupę</a>
+                        </th>
+                    </tr>
+              {% endfor %}
+                                </tbody>
+                  </table>
+      <a href="{% url "add_group" id=data.id %}" class="btn btn-info" id="registerbutton" type="submit">Dodaj grupę</a>
+  </div>
+</div>
+{% endblock %}

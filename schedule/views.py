@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from schedule.forms import AddAvailabilityForm, AddYear, AddGroup, SearchYear
+from schedule.forms import AddAvailabilityForm, AddYear, AddGroupForm, SearchYear, ManageYearForm
 from schedule.models import WeekDay
 from schedule.models import LecturerAvailability
 from schedule.models import Year, Group
@@ -38,11 +38,13 @@ def set_preferences(request):
     return render(request, 'schedule/set_preferences.html',
                       {'form': form, 'availability': availability})
 
+
 def delete_availability(request, id):
     """Deletes single availability based on pk."""
     query = WeekDay.objects.get(id=id)
     query.delete()
     return redirect(request.META['HTTP_REFERER'])
+
 
 def get_availability(request):
     """Returns availability list for current logged user/lecturer."""
@@ -113,5 +115,43 @@ def add_year(request):
     return render(request, 'schedule/add_year.html',{'year_form': year_form})
 
 
-def add_group(request):
-    return render(request, 'schedule/add_group.html',{})
+def manage_year(request, id):
+    """Basically DetailView for Year model."""
+    groups = Group.objects.filter(year_id=id)
+    data = get_object_or_404(Year, pk=id)
+    if request.method == "POST":
+        form = ManageYearForm(instance=data, data=request.POST)
+        if form.is_valid():
+            form.save()
+        return redirect(year_group_management)
+    else:
+        form = ManageYearForm(instance=data)
+    return render(request, 'schedule/manage_year.html',{
+        "data": data, "form": form, "groups": groups
+    })
+
+
+def check_group_existance(year_id, group_number):
+    groups = Group.objects.filter(year_id=year_id, group_number=group_number)
+    if groups:
+        return True
+    else:
+        return False
+
+
+
+def add_group(request, id):
+    if request.method == "POST":
+        form = AddGroupForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            print(check_group_existance(id, cd['group_number']))
+            if check_group_existance(id, cd['group_number']):
+                error = "Grupa o podanym numerze już istnieje!"
+                return render(request, 'schedule/add_group.html',
+                              {'form': form, 'error': error, 'id': id})
+            Group.objects.create(year_id=id, quantity=cd['quantity'], group_number=cd['group_number'])
+            return redirect("/schedule/manage_year/{id}/".format(id=id))
+    else:
+        form = AddGroupForm()
+    return render(request, 'schedule/add_group.html',{'form': form, 'id': id})

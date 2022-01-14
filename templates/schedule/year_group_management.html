@@ -17,14 +17,31 @@
       </form>
 
 
-          <ul class="list-group">
+              <table class="table">
+                  <thead>
+                  <th scope="col">Kierunek</th>
+                  <th scope="col">Tok studiów</th>
+                  <th scope="col">Specjalność</th>
+                  <th scope="col">Rok akademicki</th>
+                  <th scope="col">Opcje</th>
+                  </thead>
               {% for year in page_obj %}
-                  <li class="list-group-item">{{ year.year_name }} {{ year.speciality }} {{ year.year_period }}
-                  <a class="btn btn-info btn-sm managebtn" href="#">Zarządzaj kierunkiem</a></li>
+
+                  <tbody>
+                    <tr>
+                        <th scope="row">{{ year.year_name }}</th>
+                        <th> {{ year.type_of_studies }}</th>
+                        <th>{{ year.speciality }}</th>
+                        <th>{{ year.year_period }} {{ year.type_of_semester }}</th>
+                        <th><a class="btn btn-info btn-sm managebtn" href="{% url 'manage_year' id=year.id %}">Zarządzaj kierunkiem</a>
+                        <a class="btn btn-outline-info btn-sm managebtn" href="#">Usuń kierunek</a></th>
+                    </tr>
               {% empty %}
                   <p>Brak wyników dla podanego wyszukiwania</p>
               {% endfor %}
-          </ul>
+                                </tbody>
+                  </table>
+
           <div class="pagination">
             <span class="step-links">
                 {% if page_obj.has_previous %}
