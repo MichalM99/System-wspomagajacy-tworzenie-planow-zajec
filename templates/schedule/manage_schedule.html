@@ -1,0 +1,60 @@
+{% extends "dashboard/dashboard.html" %}
+{% block title %}Zarządzanie planami{% endblock %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block screen %}
+<div class="card">
+  <h5 class="card-header">Lista planów</h5>
+  <div class="card-body">
+      <table class="table">
+          <thead>
+                  <th scope="col">Nazwa planu</th>
+                  <th scope="col">Powiązany kierunek</th>
+                  <th scope="col">Minimalna długość przerwy</th>
+                  <th scope="col">Długość jednostki godzinowej</th>
+                  <th scope="col">Opcje</th>
+          </thead>
+          <tbody>
+          {% for schedule in schedules %}
+              <tr>
+                  <th scope="row">{{ schedule.schedule_name }}</th>
+                  <th> {{ schedule.year }}</th>
+                  <th>{{ schedule.break_time }}</th>
+                  <th>{{ schedule.lecture_unit }}</th>
+                  <th>
+                      <a class="btn btn-info btn-sm managebtn" href="{% url 'edit_schedule' id=schedule.id %}">Zarządzaj planem</a>
+                      <a class="btn btn-info btn-sm managebtn" href="">Wyświetl plan</a>
+                      <a class="btn btn-info btn-sm managebtn" href="">Pobierz plan</a>
+                      <a class="btn btn-outline-info btn-sm managebtn" href="">Usuń plan</a>
+                  </th>
+              </tr>
+          {% empty %}
+              <p>Brak wyników dla podanego wyszukiwania</p>
+          {% endfor %}
+          </tbody>
+      </table>
+      <div class="pagination">
+            <span class="step-links">
+                {% if schedules.has_previous %}
+                    <a class="pagbtn btn btn-info" href="?page=1">pierwsza</a>
+                    <a class="pagbtn btn btn-info" href="?page={{ schedules.previous_page_number }}">poprzednia</a>
+                {% endif %}
+
+                <span class="current">
+                    Strona {{ schedules.number }} z {{ schedules.paginator.num_pages }}
+                </span>
+
+                {% if schedules.has_next %}
+                    <a class="pagbtn btn btn-info" href="?page={{ schedules.next_page_number }}">następna</a>
+                    <a class="pagbtn btn btn-info" href="?page={{ schedules.paginator.num_pages }}">ostatnia</a>
+                {% endif %}
+            </span>
+        </div>
+        <a class="btn btn-info btn-sm" id="registerbutton" href="{% url 'create_schedule' %}">Stwórz nowy plan</a>
+      </div>
+  </div>
+</div>
+
+
+{% endblock %}

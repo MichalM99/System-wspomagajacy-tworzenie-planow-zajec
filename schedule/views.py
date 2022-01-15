@@ -3,7 +3,7 @@ from schedule.forms import AddAvailabilityForm, AddYear, AddGroupForm, SearchYea
     SearchRoom, EditRoomForm
 from schedule.models import WeekDay
 from schedule.models import LecturerAvailability
-from schedule.models import Year, Group, Room
+from schedule.models import Year, Group, Room, Schedule
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.http import JsonResponse
@@ -240,3 +240,24 @@ def edit_room(request, id):
     else:
         form = EditRoomForm(instance=data)
     return render(request, 'schedule/edit_room.html', {'form': form, 'data': data})
+
+
+
+
+def manage_schedule(request):
+    """Basic view for schedules."""
+    schedules = Schedule.objects.all()
+    paginator = Paginator(schedules, 10)
+    page_number = request.GET.get('page')
+    schedules = paginator.get_page(page_number)
+    return render(request, 'schedule/manage_schedule.html', {'schedules': schedules})
+
+
+def edit_schedule(request, id):
+    """Edit schedule view."""
+    return render(request, 'schedule/edit_schedule.html', {})
+
+
+def create_schedule(request):
+    """Create schedule view."""
+    return render(request, 'schedule/create_schedule.html', {})

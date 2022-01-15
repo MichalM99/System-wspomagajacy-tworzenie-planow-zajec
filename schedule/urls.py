@@ -13,5 +13,8 @@ urlpatterns = [
     path('manage_room/', views.manage_room, name='manage_room'),
     path('manage_room/delete/<int:id>/', views.delete_room, name='delete_room'),
     path('manage_room/edit_room/<int:id>/', views.edit_room, name='edit_room'),
+    path('manage_schedule/', views.manage_schedule, name='manage_schedule'),
+    path('manage_schedule/create_schedule', views.create_schedule, name='create_schedule'),
+    path('manage_schedule/edit_schedule/<int:id>/', views.edit_schedule, name='edit_schedule'),
 ]
 

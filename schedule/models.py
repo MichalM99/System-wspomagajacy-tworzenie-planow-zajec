@@ -3,14 +3,6 @@ from django.contrib.auth.models import User
 from account.models import Profile
 import datetime as dt
 
-class Schedule(models.Model):
-    schedule_name = models.CharField(verbose_name='nazwa planu', max_length=100)
-    class Meta:
-
-
-        verbose_name = 'plan'
-        verbose_name_plural = 'plany'
-
 
 class Year(models.Model):
     year_name = models.CharField(verbose_name='kierunek', max_length=100)
@@ -26,6 +18,20 @@ class Year(models.Model):
 
     def __str__(self):
         return self.year_name + ' ' +  self.year_period + ' ' + self.type_of_semester + ' ' + self.type_of_studies
+
+
+class Schedule(models.Model):
+    schedule_name = models.CharField(verbose_name='nazwa planu', max_length=100)
+    lecture_unit = models.IntegerField(verbose_name='długość jednostki godzinowej (w minutach)', default=45)
+    break_time = models.IntegerField(verbose_name='długość przerwy (w minutach)', default=15)
+    year = models.ForeignKey(Year, verbose_name='Powiązany kierunek', on_delete=models.CASCADE, null=True)
+    #dni tygodnia w jakie mogą wystąpić zajęcia
+    #sale które zostaną objęte przy generowaniu planu
+    class Meta:
+
+
+        verbose_name = 'plan'
+        verbose_name_plural = 'plany'
 
 
 class Group(models.Model):
