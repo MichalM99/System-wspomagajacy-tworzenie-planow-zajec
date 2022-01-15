@@ -9,27 +9,29 @@
 
 {% block screen %}
     <div class="card">
-      <h5 class="card-header">Twoje preferencje godzinowe </h5>
-      <div class="card-body">
-          {% for x in availability %}
-              {% for y in x %}
-              <p class="availability btn btn-outline-info">{{ y.weekday }} {{ y.from_hour }} - {{ y.to_hour }}
-                  <a href="{% url 'delete_availability' id=y.weekday.id %}"><img id="binicon" src="{% static 'images/delete_avail.png' %}"></a></p>
-              {% endfor %}
-          {% endfor %}
-      </div>
+        <h5 class="card-header">Twoje preferencje godzinowe </h5>
+        <div class="card-body">
+            {% for x in availability %}
+                {% for y in x %}
+                    <p class="availability btn btn-outline-info">{{ y.weekday }} {{ y.from_hour }} - {{ y.to_hour }}
+                        <a href="{% url 'delete_availability' id=y.weekday.id %}"><img id="binicon"
+                                                                                       src="{% static 'images/delete_avail.png' %}"></a>
+                    </p>
+                {% endfor %}
+            {% endfor %}
+        </div>
     </div>
     <div class="card">
-      <h5 class="card-header">Ustal preferencje godzinowe</h5>
-      <div class="card-body">
-          <form action="." method="post">
-              {{ form.weekday}}
-              {{ form.from_hour }}
-              {{ form.to_hour }}
-              <p>{{ error }}</p>
-              {% csrf_token %}
-          <input class="btn btn-info" id="setprefbutton" type="submit" value="Dodaj preferencje">
-          </form>
-      </div>
+        <h5 class="card-header">Ustal preferencje godzinowe</h5>
+        <div class="card-body">
+            <form action="." method="post">
+                {{ form.weekday }}
+                {{ form.from_hour }}
+                {{ form.to_hour }}
+                <p>{{ error }}</p>
+                {% csrf_token %}
+                <input class="btn btn-info" id="setprefbutton" type="submit" value="Dodaj preferencje">
+            </form>
+        </div>
     </div>
 {% endblock %}

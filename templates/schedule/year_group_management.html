@@ -7,26 +7,35 @@
 {% endblock %}
 
 {% block screen %}
-<div class="card">
-  <h5 class="card-header">Zarządzanie kierunkami/grupami</h5>
-  <div class="card-body">
-      <form method="get">
-          <p>{{ form.query.label }}</p>
-          <p>{{ form.query }}<input id="searchbutton" class="btn btn-info" type="submit" value="Wyszukaj"></p>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+    <div class="card">
+        <h5 class="card-header">Zarządzanie kierunkami/grupami</h5>
+        <div class="card-body">
+            <form method="get">
+                <p>{{ form.query.label }}</p>
+                <p>{{ form.query }}<input id="searchbutton" class="btn btn-info" type="submit" value="Wyszukaj"></p>
 
-      </form>
+            </form>
 
 
-              <table class="table">
-                  <thead>
-                  <th scope="col">Kierunek</th>
-                  <th scope="col">Tok studiów</th>
-                  <th scope="col">Specjalność</th>
-                  <th scope="col">Rok akademicki</th>
-                  <th scope="col">Opcje</th>
-                  </thead>
-                                <tbody>
-              {% for year in page_obj %}
+            <table class="table">
+                <thead>
+                <th scope="col">Kierunek</th>
+                <th scope="col">Tok studiów</th>
+                <th scope="col">Specjalność</th>
+                <th scope="col">Rok akademicki</th>
+                <th scope="col">Opcje</th>
+                </thead>
+                <tbody>
+                {% for year in page_obj %}
 
 
                     <tr>
@@ -34,16 +43,44 @@
                         <th> {{ year.type_of_studies }}</th>
                         <th>{{ year.speciality }}</th>
                         <th>{{ year.year_period }} {{ year.type_of_semester }}</th>
-                        <th><a class="btn btn-info btn-sm managebtn" href="{% url 'manage_year' id=year.id %}">Zarządzaj kierunkiem</a>
-                        <a class="btn btn-outline-info btn-sm managebtn" href="{% url 'delete_year' id=year.id %}">Usuń kierunek</a></th>
+                        <th><a class="btn btn-info btn-sm managebtn" href="{% url 'manage_year' id=year.id %}">Zarządzaj
+                            kierunkiem</a>
+                            <div class="modal fade" id="deleteYearModal" tabindex="-1" role="dialog"
+                                 aria-labelledby="deleteYearModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="deleteYearModalLabel">Potwierdź usunięcie
+                                                kierunku/roku</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Czy jesteś pewien, że chcesz usunąć kierunek/rok?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-info btn-sm" data-dismiss="modal">
+                                                Powrót do listy kierunków
+                                            </button>
+                                            <a href="{% url 'delete_year' id=year.id %}"
+                                               class="btn btn-outline-info managebtn btn-sm" type="submit">Usuń
+                                                kierunek</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a class="btn btn-outline-info btn-sm managebtn" data-toggle="modal"
+                               data-target="#deleteYearModal" href="#">Usuń kierunek</a>
+                        </th>
                     </tr>
-              {% empty %}
-                  <p>Brak wyników dla podanego wyszukiwania</p>
-              {% endfor %}
-                                </tbody>
-                  </table>
+                {% empty %}
+                    <p>Brak wyników dla podanego wyszukiwania</p>
+                {% endfor %}
+                </tbody>
+            </table>
 
-          <div class="pagination">
+            <div class="pagination">
             <span class="step-links">
                 {% if page_obj.has_previous %}
                     <a class="pagbtn btn btn-info" href="?page=1">pierwsza</a>
@@ -59,10 +96,10 @@
                     <a class="pagbtn btn btn-info" href="?page={{ page_obj.paginator.num_pages }}">ostatnia</a>
                 {% endif %}
             </span>
+            </div>
+
+
+            <a href="{% url "add_year" %}" class="btn btn-info" id="registerbutton" type="submit">Dodaj rok/kierunek</a>
         </div>
-
-
-      <a href="{% url "add_year" %}" class="btn btn-info" id="registerbutton" type="submit">Dodaj rok/kierunek</a>
-  </div>
-</div>
+    </div>
 {% endblock %}

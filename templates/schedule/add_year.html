@@ -4,14 +4,14 @@
 {% load crispy_forms_tags %}
 
 {% block screen %}
-<div class="card">
-  <h5 class="card-header">Dodaj kierunek</h5>
-  <div class="card-body">
-          <form action="." method="post">
-              {{ year_form|crispy}}
-              {% csrf_token %}
-          <input class="btn btn-info" id="registerbutton" type="submit" value="Dodaj rok/kierunek">
-          </form>
-  </div>
-</div>
+    <div class="card">
+        <h5 class="card-header">Dodaj kierunek</h5>
+        <div class="card-body">
+            <form action="." method="post">
+                {{ year_form|crispy }}
+                {% csrf_token %}
+                <input class="btn btn-info" id="registerbutton" type="submit" value="Dodaj rok/kierunek">
+            </form>
+        </div>
+    </div>
 {% endblock %}

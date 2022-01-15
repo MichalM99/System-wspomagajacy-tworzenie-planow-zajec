@@ -4,40 +4,83 @@
 {% load crispy_forms_tags %}
 
 {% block screen %}
-<div class="card">
-  <h5 class="card-header">Zarządzaj kierunkiem</h5>
-  <div class="card-body">
-      <form action="." method="post">
-            {{ form|crispy }}
-          {% csrf_token %}
-          <input class="btn btn-info" id="registerbutton" type="submit" value="Zapisz zmiany">
-      </form>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+    <div class="card">
+        <h5 class="card-header">Zarządzaj kierunkiem</h5>
+        <div class="card-body">
+            <form action="." method="post">
+                {{ form|crispy }}
+                {% csrf_token %}
+                <input class="btn btn-info" id="registerbutton" type="submit" value="Zapisz zmiany">
+            </form>
 
-  </div>
-</div>
-<div class="card">
-  <h5 class="card-header">Grupy powiązane z kierunkiem</h5>
-  <div class="card-body">
-              <table class="table">
-                  <thead>
-                  <th scope="col">Numer grupy</th>
-                  <th scope="col">Liczebność</th>
-                  <th scope="col">Opcje</th>
-                  </thead>
-              {% for group in groups %}
+        </div>
+    </div>
+    <div class="card">
+        <h5 class="card-header">Grupy powiązane z kierunkiem</h5>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                <th scope="col">Numer grupy</th>
+                <th scope="col">Liczebność</th>
+                <th scope="col">Opcje</th>
+                </thead>
+                {% for group in groups %}
 
-                  <tbody>
+                    <tbody>
                     <tr>
                         <th scope="row">{{ group.group_number }}</th>
                         <th> {{ group.quantity }}</th>
                         <th>
-                            <a href="{% url 'delete_group' id=group.id pk=data.id %}" class="btn btn-outline-info" type="submit">Usuń grupę</a>
+                            <div class="modal fade" id="deleteGroupModal" tabindex="-1" role="dialog"
+                                 aria-labelledby="deleteGroupModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="deleteGroupModalLabel">Potwierdź usunięcie
+                                                grupy</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Czy jesteś pewien, że chcesz usunąć grupę?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-info btn-sm" data-dismiss="modal">
+                                                Powrót do listy grup
+                                            </button>
+                                            <a href="{% url 'delete_group' id=group.id pk=data.id %}"
+                                               class="btn btn-outline-info btn-sm" type="submit">Usuń grupę</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-info" data-toggle="modal"
+                                    data-target="#deleteGroupModal">
+                                Usuń grupę
+                            </button>
                         </th>
                     </tr>
-              {% endfor %}
-                                </tbody>
-                  </table>
-      <a href="{% url "add_group" id=data.id %}" class="btn btn-info" id="registerbutton" type="submit">Dodaj grupę</a>
-  </div>
-</div>
+                {% endfor %}
+                </tbody>
+            </table>
+            <a href="{% url "add_group" id=data.id %}" class="btn btn-info" id="registerbutton" type="submit">Dodaj
+                grupę</a>
+        </div>
+    </div>
+
+
+
+    <!-- Modal -->
+
+
 {% endblock %}

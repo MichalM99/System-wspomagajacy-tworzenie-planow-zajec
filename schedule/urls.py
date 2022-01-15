@@ -16,5 +16,6 @@ urlpatterns = [
     path('manage_schedule/', views.manage_schedule, name='manage_schedule'),
     path('manage_schedule/create_schedule', views.create_schedule, name='create_schedule'),
     path('manage_schedule/edit_schedule/<int:id>/', views.edit_schedule, name='edit_schedule'),
+    path('manage_schedule/delete/<int:id>/', views.delete_schedule, name='delete_schedule'),
 ]
 

@@ -4,15 +4,15 @@
 {% load crispy_forms_tags %}
 
 {% block screen %}
-<div class="card">
-  <h5 class="card-header">Edytuj salę</h5>
-  <div class="card-body">
-      <form action="." method="post">
-          {{ form|crispy}}
-          {% csrf_token %}
-          <p>{{ error }}</p>
-      <input class="btn btn-info" id="registerbutton" type="submit" value="Zapisz zmiany">
-      </form>
-  </div>
-</div>
+    <div class="card">
+        <h5 class="card-header">Edytuj salę</h5>
+        <div class="card-body">
+            <form action="." method="post">
+                {{ form|crispy }}
+                {% csrf_token %}
+                <p>{{ error }}</p>
+                <input class="btn btn-info" id="registerbutton" type="submit" value="Zapisz zmiany">
+            </form>
+        </div>
+    </div>
 {% endblock %}

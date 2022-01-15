@@ -4,37 +4,71 @@
 {% load crispy_forms_tags %}
 
 {% block screen %}
-<div class="card">
-  <h5 class="card-header">Lista planów</h5>
-  <div class="card-body">
-      <table class="table">
-          <thead>
-                  <th scope="col">Nazwa planu</th>
-                  <th scope="col">Powiązany kierunek</th>
-                  <th scope="col">Minimalna długość przerwy</th>
-                  <th scope="col">Długość jednostki godzinowej</th>
-                  <th scope="col">Opcje</th>
-          </thead>
-          <tbody>
-          {% for schedule in schedules %}
-              <tr>
-                  <th scope="row">{{ schedule.schedule_name }}</th>
-                  <th> {{ schedule.year }}</th>
-                  <th>{{ schedule.break_time }}</th>
-                  <th>{{ schedule.lecture_unit }}</th>
-                  <th>
-                      <a class="btn btn-info btn-sm managebtn" href="{% url 'edit_schedule' id=schedule.id %}">Zarządzaj planem</a>
-                      <a class="btn btn-info btn-sm managebtn" href="">Wyświetl plan</a>
-                      <a class="btn btn-info btn-sm managebtn" href="">Pobierz plan</a>
-                      <a class="btn btn-outline-info btn-sm managebtn" href="">Usuń plan</a>
-                  </th>
-              </tr>
-          {% empty %}
-              <p>Brak wyników dla podanego wyszukiwania</p>
-          {% endfor %}
-          </tbody>
-      </table>
-      <div class="pagination">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+    <div class="card">
+        <h5 class="card-header">Lista planów</h5>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                <th scope="col">Nazwa planu</th>
+                <th scope="col">Powiązany kierunek</th>
+                <th scope="col">Minimalna długość przerwy</th>
+                <th scope="col">Długość jednostki godzinowej</th>
+                <th scope="col">Opcje</th>
+                </thead>
+                <tbody>
+                {% for schedule in schedules %}
+                    <tr>
+                        <th scope="row">{{ schedule.schedule_name }}</th>
+                        <th> {{ schedule.year }}</th>
+                        <th>{{ schedule.break_time }}</th>
+                        <th>{{ schedule.lecture_unit }}</th>
+                        <th>
+                            <a class="btn btn-info btn-sm managebtn" href="{% url 'edit_schedule' id=schedule.id %}">Zarządzaj
+                                planem</a>
+                            <a class="btn btn-info btn-sm managebtn" href="">Wyświetl plan</a>
+                            <a class="btn btn-info btn-sm managebtn" href="">Pobierz plan</a>
+                            <div class="modal fade" id="deleteScheduleModal" tabindex="-1" role="dialog"
+                                 aria-labelledby="deleteScheduleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="deleteScheduleModalLabel">Potwierdź usunięcie
+                                                planu</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Czy jesteś pewien, że chcesz usunąć plan?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <a href="#" class="btn btn-info managebtn btn-sm" data-dismiss="modal">Powrót
+                                                do listy planów</a>
+                                            <a class="btn btn-outline-info btn-sm managebtn"
+                                               href="{% url 'delete_schedule' id=schedule.id %}">Usuń plan</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a class="btn btn-outline-info btn-sm managebtn" data-toggle="modal"
+                               data-target="#deleteScheduleModal" href="#">Usuń plan</a>
+                        </th>
+                    </tr>
+                {% empty %}
+                    <p>Brak wyników dla podanego wyszukiwania</p>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class="pagination">
             <span class="step-links">
                 {% if schedules.has_previous %}
                     <a class="pagbtn btn btn-info" href="?page=1">pierwsza</a>
@@ -50,11 +84,11 @@
                     <a class="pagbtn btn btn-info" href="?page={{ schedules.paginator.num_pages }}">ostatnia</a>
                 {% endif %}
             </span>
+            </div>
+            <a class="btn btn-info btn-sm" id="registerbutton" href="{% url 'create_schedule' %}">Stwórz nowy plan</a>
         </div>
-        <a class="btn btn-info btn-sm" id="registerbutton" href="{% url 'create_schedule' %}">Stwórz nowy plan</a>
-      </div>
-  </div>
-</div>
+    </div>
+    </div>
 
 
 {% endblock %}

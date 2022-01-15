@@ -13,8 +13,6 @@ from django.db.models import Q
 from django.core.paginator import Paginator
 
 
-
-
 def set_preferences(request):
     """Allows to add preferences for lecturer."""
     availability = get_availability(request)
@@ -37,7 +35,7 @@ def set_preferences(request):
     else:
         form = AddAvailabilityForm()
     return render(request, 'schedule/set_preferences.html',
-                      {'form': form, 'availability': availability})
+                  {'form': form, 'availability': availability})
 
 
 def delete_availability(request, id):
@@ -103,8 +101,6 @@ def year_group_management(request):
                                                                    'page_obj': page_obj})
 
 
-
-
 def add_year(request):
     if request.method == 'POST':
         year_form = AddYear(request.POST)
@@ -115,7 +111,7 @@ def add_year(request):
             return redirect(year_group_management)
     else:
         year_form = AddYear()
-    return render(request, 'schedule/add_year.html',{'year_form': year_form})
+    return render(request, 'schedule/add_year.html', {'year_form': year_form})
 
 
 def manage_year(request, id):
@@ -129,7 +125,7 @@ def manage_year(request, id):
         return redirect(year_group_management)
     else:
         form = ManageYearForm(instance=data)
-    return render(request, 'schedule/manage_year.html',{
+    return render(request, 'schedule/manage_year.html', {
         "data": data, "form": form, "groups": groups
     })
 
@@ -140,7 +136,6 @@ def check_group_existance(year_id, group_number):
         return True
     else:
         return False
-
 
 
 def add_group(request, id):
@@ -156,7 +151,7 @@ def add_group(request, id):
             return redirect("/schedule/manage_year/{id}/".format(id=id))
     else:
         form = AddGroupForm()
-    return render(request, 'schedule/add_group.html',{'form': form, 'id': id})
+    return render(request, 'schedule/add_group.html', {'form': form, 'id': id})
 
 
 def delete_group(request, id, pk):
@@ -201,7 +196,8 @@ def manage_room(request):
             if check_existing_room(cd['room_name']):
                 error = "Taka sala juz istnieje!"
                 return render(request, 'schedule/manage_room.html',
-                              {'form':form, 'rooms': rooms, 'error': error, 'query': query, 'search_form': search_form})
+                              {'form': form, 'rooms': rooms, 'error': error, 'query': query,
+                               'search_form': search_form})
             new_room = form.save(commit=False)
             new_room.save()
     else:
@@ -209,8 +205,8 @@ def manage_room(request):
     paginator = Paginator(rooms, 10)
     page_number = request.GET.get('page')
     rooms = paginator.get_page(page_number)
-    return render(request, 'schedule/manage_room.html',{
-        'form':form, 'rooms': rooms, 'query': query, 'search_form': search_form
+    return render(request, 'schedule/manage_room.html', {
+        'form': form, 'rooms': rooms, 'query': query, 'search_form': search_form
     })
 
 
@@ -234,14 +230,12 @@ def edit_room(request, id):
             elif check_existing_room(cd):
                 error = "Taka sala juz istnieje!"
                 return render(request, 'schedule/edit_room.html',
-                              {'form':form, 'error': error})
+                              {'form': form, 'error': error})
             form.save()
         return redirect("/schedule/manage_room/")
     else:
         form = EditRoomForm(instance=data)
     return render(request, 'schedule/edit_room.html', {'form': form, 'data': data})
-
-
 
 
 def manage_schedule(request):
@@ -251,6 +245,13 @@ def manage_schedule(request):
     page_number = request.GET.get('page')
     schedules = paginator.get_page(page_number)
     return render(request, 'schedule/manage_schedule.html', {'schedules': schedules})
+
+
+def delete_schedule(request, id):
+    """Deletes single schedule based on pk."""
+    query = Schedule.objects.get(id=id)
+    query.delete()
+    return redirect(request.META['HTTP_REFERER'])
 
 
 def edit_schedule(request, id):
