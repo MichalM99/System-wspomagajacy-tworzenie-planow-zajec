@@ -3,25 +3,24 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
+
+
+
 {% block screen %}
+
     <div class="card">
         <h5 class="card-header">Generuj plan</h5>
         <div class="card-body">
             <div class="card">
-                <h5 class="card-header">Wybierz kierunek</h5>
+                <h5 class="card-header">Określ główne parametry</h5>
                 <div class="card-body">
-
+                    <form action="." method="post">
+                        {{ add_schedule_form.media }}
+                        {{ add_schedule_form|crispy }}
+                        {% csrf_token %}
+                        <input class="btn btn-info" id="registerbutton" type="submit" value="Dodaj grupę">
+                    </form>
                 </div>
             </div>
-            <div class="card">
-                <h5 class="card-header">Przypisz jednostki zajęciowe</h5>
-                <div class="card-body">
-
-                </div>
-            </div>
-            <a href="" class="btn btn-info" id="registerbutton" type="submit">Stwórz plan</a>
-            <a href="{% url 'manage_schedule' %}" class="btn btn-outline-info" id="registerbutton"
-               type="submit">Powrót</a>
         </div>
-    </div>
 {% endblock %}

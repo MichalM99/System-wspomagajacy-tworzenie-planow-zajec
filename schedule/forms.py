@@ -1,7 +1,9 @@
 from django import forms
-from schedule.models import Year, Group, Room
+from schedule.models import Year, Group, Room, Schedule, Lecture
+from account.models import Profile
 from schedule.utils import generate_hours
 import datetime as dt
+
 
 
 DAYS_OF_WEEK = (
@@ -93,5 +95,28 @@ class EditRoomForm(forms.ModelForm):
     class Meta:
         model = Room
         fields = ('__all__')
+
+
+class AddScheduleForm(forms.Form):
+    schedule_name = forms.CharField(max_length=100, label='Nazwa planu')
+    lecture_unit = forms.IntegerField(max_value=120, min_value=15, label='Długość jednostki godzinowej (w minutach)')
+    break_time = forms.IntegerField(max_value=120, min_value=0, label='Długość przerwy (w minutach)')
+    year = forms.ModelChoiceField(queryset=Year.objects.all(), label='Powiązany kierunek', widget=forms.Select(attrs={
+        'class': 'form-control-sm',
+        'id': 'year-input'}))
+    # year = forms.CharField(max_length=120, label="Kierunek/specjalność/rok akademicki", widget=forms.TextInput(attrs={
+    #                                                                     'id': 'tags',
+    #                                                                      'type': 'text',
+    #                                                                      'class': '',}))
+
+class AddScheduleItemForm(forms.Form):
+    group = forms.ModelChoiceField(queryset=Group.objects.all(), label='Grupa',
+                                  widget=forms.Select(attrs={'class': 'form-control-sm'}))
+    lecture = forms.ModelChoiceField(queryset=Lecture.objects.all(), label='Zajęcia',
+                                  widget=forms.Select(attrs={'class': 'form-control-sm'}))
+    lecturer = forms.ModelChoiceField(queryset=Profile.objects.all(), label='Prowadzący',
+                                  widget=forms.Select(attrs={'class': 'form-control-sm'}))
+    lecture_unit = forms.IntegerField(max_value =50, min_value=0, label='Liczba jednostek godzinowych')
+
 
 

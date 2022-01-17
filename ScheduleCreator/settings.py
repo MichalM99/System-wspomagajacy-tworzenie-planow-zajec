@@ -145,3 +145,23 @@ EMAIL_HOST_USER = 'zswtpz@gmail.com'
 EMAIL_HOST_PASSWORD = 'Admin123.'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    'select2': {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+# Tell select2 which cache configuration to use:
+SELECT2_CACHE_BACKEND = "select2"

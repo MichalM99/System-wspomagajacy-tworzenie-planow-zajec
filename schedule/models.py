@@ -3,6 +3,15 @@ from django.contrib.auth.models import User
 from account.models import Profile
 import datetime as dt
 
+DAYS_OF_WEEK = (
+    (0, 'Poniedziałek'),
+    (1, 'Wtorek'),
+    (2, 'Środa'),
+    (3, 'Czwartek'),
+    (4, 'Piątek'),
+    (5, 'Sobota'),
+    (6, 'Niedziela'),
+)
 
 class Year(models.Model):
     year_name = models.CharField(verbose_name='kierunek', max_length=100)
@@ -45,19 +54,23 @@ class Group(models.Model):
         verbose_name_plural = 'grupy'
 
     def __str__(self):
-        return self.year.year_name + ', grupa nr ' + str(self.group_number) + ', liczebność: ' + str(self.quantity)
+        return str(self.id) + ' ' + self.year.year_name + ', grupa nr ' + str(self.group_number) + ', liczebność: ' + str(self.quantity)
 
 
 class Lecture(models.Model):
     lecture_name = models.CharField(verbose_name='nazwa zajęć', max_length=100)
 
+    def __str__(self):
+        return self.lecture_name
+
 
 class ScheduleItem(models.Model):
-    schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE)
+    schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE, null=True)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE)
-    from_hour = models.TimeField()
-    to_hour = models.TimeField()
+    from_hour = models.TimeField(null=True)
+    to_hour = models.TimeField(null=True)
+    weekday = models.IntegerField(choices=DAYS_OF_WEEK)
 
 
     class Meta:
@@ -74,26 +87,22 @@ class Room(models.Model):
         verbose_name = 'sala'
         verbose_name_plural = 'sale'
 
+    def __str__(self):
+        return self.room_name
+
 
 class RoomItem(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     schedule_item = models.ForeignKey(ScheduleItem, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.room.room_name + ' ' + self.schedule_item.get_weekday_display() + ' ' + str(self.schedule_item.from_hour) + \
+    ' - ' + str(self.schedule_item.to_hour)
+
 
 class LecturerItem(models.Model):
     lecturer = models.ForeignKey(User, on_delete=models.CASCADE)
     schedule_item = models.ForeignKey(ScheduleItem, on_delete=models.CASCADE)
-
-
-DAYS_OF_WEEK = (
-    (0, 'Poniedziałek'),
-    (1, 'Wtorek'),
-    (2, 'Środa'),
-    (3, 'Czwartek'),
-    (4, 'Piątek'),
-    (5, 'Sobota'),
-    (6, 'Niedziela'),
-)
 
 
 class WeekDay(models.Model):

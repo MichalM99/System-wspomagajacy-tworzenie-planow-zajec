@@ -1,17 +1,21 @@
+from django.contrib.auth.models import User
 from django.shortcuts import render
 from schedule.forms import AddAvailabilityForm, AddYear, AddGroupForm, SearchYear, ManageYearForm, AddRoomForm, \
-    SearchRoom, EditRoomForm
+    SearchRoom, EditRoomForm, AddScheduleForm, AddScheduleItemForm
 from schedule.models import WeekDay
 from schedule.models import LecturerAvailability
 from schedule.models import Year, Group, Room, Schedule
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.template.loader import render_to_string
 from django.views.generic import ListView
 from django.db.models import Q
 from django.core.paginator import Paginator
-
+from schedule.utils import check_availability, is_lecturer_free, is_room_free, is_group_free
+from account.models import Profile
+import datetime
+import json
 
 def set_preferences(request):
     """Allows to add preferences for lecturer."""
@@ -61,17 +65,7 @@ def validate_availability(request, weekday, from_hour, to_hour):
         for weekday in weekdays:
             availability = LecturerAvailability.objects.filter(weekday=weekday)
             for item in availability:
-                if from_hour <= item.to_hour and from_hour >= item.from_hour:
-                    print("Pierwszy if")
-                    return False
-                if to_hour >= item.to_hour and from_hour <= item.from_hour:
-                    print("Drugi if")
-                    return False
-                if to_hour == item.to_hour and from_hour == item.from_hour:
-                    print("Trzeci if")
-                    return False
-                if from_hour <= item.from_hour and to_hour >= item.from_hour:
-                    print("Czwarty if")
+                if not check_availability(from_hour, to_hour, item):
                     return False
         return True
     else:
@@ -244,6 +238,9 @@ def manage_schedule(request):
     paginator = Paginator(schedules, 10)
     page_number = request.GET.get('page')
     schedules = paginator.get_page(page_number)
+    #print(is_lecturer_free(User.objects.get(id=request.user.id), 0, datetime.datetime.strptime('13:15', '%H:%M').time(), datetime.datetime.strptime('14:30', '%H:%M').time()))
+    #print(is_room_free(Room.objects.get(room_name='15'), datetime.datetime.strptime('12:50', '%H:%M').time(), datetime.datetime.strptime('13:30', '%H:%M').time(), 0))
+    #print(is_group_free(Group.objects.get(id=12), datetime.datetime.strptime('13:15', '%H:%M').time(), datetime.datetime.strptime('13:45', '%H:%M').time(), 0))
     return render(request, 'schedule/manage_schedule.html', {'schedules': schedules})
 
 
@@ -259,6 +256,28 @@ def edit_schedule(request, id):
     return render(request, 'schedule/edit_schedule.html', {})
 
 
+
 def create_schedule(request):
     """Create schedule view."""
-    return render(request, 'schedule/create_schedule.html', {})
+    #is_lecturer_free() - done
+    #is_room_free() - done
+    #is_group_free() - done
+    add_schedule_form = AddScheduleForm()
+    add_schedule_item_form = AddScheduleItemForm()
+    items = Year.objects.all()
+    if request.method == "POST":
+        form = AddScheduleForm(request.POST)
+        print("abc")
+        if form.is_valid():
+            print(form)
+            cd = form.cleaned_data
+            # Schedule.objects.create(schedule_name=cd['schedule_name'], lecture_unit=cd['lecture_unit'],
+            #                         break_time=cd['break_time'], year=cd['year'])
+            print(cd)
+    #Schedule.objects.create()
+    return render(request, 'schedule/create_schedule.html', {
+        'add_schedule_form': add_schedule_form,
+        'add_schedule_item_form': add_schedule_item_form,
+        'items': items})
+
+
