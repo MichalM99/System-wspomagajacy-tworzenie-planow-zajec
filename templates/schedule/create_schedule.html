@@ -15,12 +15,67 @@
                 <h5 class="card-header">Określ główne parametry</h5>
                 <div class="card-body">
                     <form action="." method="post">
-                        {{ add_schedule_form.media }}
                         {{ add_schedule_form|crispy }}
                         {% csrf_token %}
-                        <input class="btn btn-info" id="registerbutton" type="submit" value="Dodaj grupę">
+                        <button class="btn btn-info" id="registerbutton" name="create_schedule" type="submit">Stwórz
+                            plan
+                        </button>
                     </form>
                 </div>
             </div>
+            <div class="card">
+                <h5 class="card-header">Podpięte jednostki zajęciowe</h5>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                        <th scope="col">Nazwa zajęć:</th>
+                        <th scope="col">Numer grupy:</th>
+                        <th scope="col">Liczebność grupy:</th>
+                        <th scope="col">Prowadzący:</th>
+                        <th scope="col">Opcje</th>
+                        </thead>
+                        <tbody>
+                        {% for item, lecturer in schedule_items %}
+                            <tr>
+                                <th scope="row">{{ item.lecture.lecture_name }}</th>
+                                <th>{{ item.group.group_number }}</th>
+                                <th>{{ item.group.quantity }}</th>
+                                <th> {{ lecturer.lecturer }} </th>
+                                <th><a class="btn btn-outline-info btn-sm managebtn"
+                                       href="">Usuń jednostkę zajęciową</a></th>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card">
+                <h5 class="card-header">Dodaj jednostki zajęciowe</h5>
+                <div class="card-body">
+
+                    <form action="." method="post">
+                        {% csrf_token %}
+                        {{ add_schedule_item_form|crispy }}
+                        {{ add_schedule_item_form.errors }}
+                        {{ add_schedule_item_form.non_field_errors }}
+                        <button class="btn btn-info" id="registerbutton" name="add_schedule_item" type="submit">Dodaj
+                            jednostkę zajęciową
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="card">
+                <h5 class="card-header">Lista podpiętych sal</h5>
+                <div class="card-body">
+
+                </div>
+            </div>
+            <div class="card">
+                <h5 class="card-header">Dodaj salę</h5>
+                <div class="card-body">
+
+                </div>
+            </div>
         </div>
+    </div>
 {% endblock %}

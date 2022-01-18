@@ -35,6 +35,8 @@ def is_lecturer_free(lecturer, weekday, from_hour, to_hour):
     """Checks whether lecturer can be assigned to classes."""
     weekdays = WeekDay.objects.filter(weekday=weekday, lecturer=lecturer)
     availability_count = 0
+    # from_hour = dt.datetime.strptime(str(from_hour), '%H:%M:%S')
+    # to_hour = dt.datetime.strptime(str(to_hour), '%H:%M:%S')
     for weekday in weekdays:
         availability = LecturerAvailability.objects.filter(weekday=weekday)
         for item in availability:
@@ -43,18 +45,17 @@ def is_lecturer_free(lecturer, weekday, from_hour, to_hour):
     if availability_count < 1:
         return False
 
-    # from_hour = dt.datetime.strptime(str(from_hour), '%H:%M:%S')
-    # to_hour = dt.datetime.strptime(str(to_hour), '%H:%M:%S')
+
     # from_hour = (from_hour - dt.timedelta(minutes=15)).time()
     # to_hour = (to_hour + dt.timedelta(minutes=15)).time()
 
-    lecturer_items = LecturerItem.objects.filter(lecturer=lecturer)
-    for item in lecturer_items:
-        schedule_item = item.schedule_item
-        if schedule_item.weekday == weekday.weekday:
-            if not check_availability(from_hour, to_hour, schedule_item):
-                return False
-    return True
+    # lecturer_items = LecturerItem.objects.filter(lecturer=lecturer)
+    # for item in lecturer_items:
+    #     schedule_item = item.schedule_item
+    #     if schedule_item.weekday == weekday.weekday:
+    #         if not check_availability(from_hour, to_hour, schedule_item):
+    #             return False
+    # return True
 
 
 def is_room_free(room, from_hour, to_hour, weekday):
@@ -73,3 +74,6 @@ def is_group_free(group, from_hour, to_hour, weekday):
         if not check_availability(from_hour, to_hour, item):
             return False
     return True
+
+
+

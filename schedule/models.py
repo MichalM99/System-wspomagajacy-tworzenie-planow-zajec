@@ -54,7 +54,7 @@ class Group(models.Model):
         verbose_name_plural = 'grupy'
 
     def __str__(self):
-        return str(self.id) + ' ' + self.year.year_name + ', grupa nr ' + str(self.group_number) + ', liczebność: ' + str(self.quantity)
+        return self.year.year_name + ', grupa nr ' + str(self.group_number) + ', liczebność: ' + str(self.quantity)
 
 
 class Lecture(models.Model):
@@ -65,12 +65,13 @@ class Lecture(models.Model):
 
 
 class ScheduleItem(models.Model):
-    schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE, null=True)
+    schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE, null=True, blank=True)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE)
-    from_hour = models.TimeField(null=True)
-    to_hour = models.TimeField(null=True)
-    weekday = models.IntegerField(choices=DAYS_OF_WEEK)
+    from_hour = models.TimeField(null=True, blank=True)
+    to_hour = models.TimeField(null=True, blank=True)
+    weekday = models.IntegerField(choices=DAYS_OF_WEEK, null=True, blank=True)
+    lecture_units = models.IntegerField(default=15)
 
 
     class Meta:
@@ -101,7 +102,7 @@ class RoomItem(models.Model):
 
 
 class LecturerItem(models.Model):
-    lecturer = models.ForeignKey(User, on_delete=models.CASCADE)
+    lecturer = models.ForeignKey(Profile, on_delete=models.CASCADE)
     schedule_item = models.ForeignKey(ScheduleItem, on_delete=models.CASCADE)
 
 

@@ -100,14 +100,8 @@ class EditRoomForm(forms.ModelForm):
 class AddScheduleForm(forms.Form):
     schedule_name = forms.CharField(max_length=100, label='Nazwa planu')
     lecture_unit = forms.IntegerField(max_value=120, min_value=15, label='Długość jednostki godzinowej (w minutach)')
-    break_time = forms.IntegerField(max_value=120, min_value=0, label='Długość przerwy (w minutach)')
-    year = forms.ModelChoiceField(queryset=Year.objects.all(), label='Powiązany kierunek', widget=forms.Select(attrs={
-        'class': 'form-control-sm',
-        'id': 'year-input'}))
-    # year = forms.CharField(max_length=120, label="Kierunek/specjalność/rok akademicki", widget=forms.TextInput(attrs={
-    #                                                                     'id': 'tags',
-    #                                                                      'type': 'text',
-    #                                                                      'class': '',}))
+    break_time = forms.IntegerField(max_value=120, min_value=0, label='Minimalna długość przerwy (w minutach)')
+
 
 class AddScheduleItemForm(forms.Form):
     group = forms.ModelChoiceField(queryset=Group.objects.all(), label='Grupa',
@@ -116,7 +110,14 @@ class AddScheduleItemForm(forms.Form):
                                   widget=forms.Select(attrs={'class': 'form-control-sm'}))
     lecturer = forms.ModelChoiceField(queryset=Profile.objects.all(), label='Prowadzący',
                                   widget=forms.Select(attrs={'class': 'form-control-sm'}))
-    lecture_unit = forms.IntegerField(max_value =50, min_value=0, label='Liczba jednostek godzinowych')
+    lecture_unit = forms.IntegerField(label='Liczba jednostek godzinowych jednorazowo')
+
+    def __init__(self, *args, **kwargs):
+        year_id = kwargs.pop('year_id', None)
+        super(AddScheduleItemForm, self).__init__(*args, **kwargs)
+
+        if year_id:
+            self.fields['group'].queryset = Group.objects.filter(year_id=year_id)
 
 
 

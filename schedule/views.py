@@ -4,7 +4,7 @@ from schedule.forms import AddAvailabilityForm, AddYear, AddGroupForm, SearchYea
     SearchRoom, EditRoomForm, AddScheduleForm, AddScheduleItemForm
 from schedule.models import WeekDay
 from schedule.models import LecturerAvailability
-from schedule.models import Year, Group, Room, Schedule
+from schedule.models import Year, Group, Room, Schedule, ScheduleItem, LecturerItem
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.http import JsonResponse, HttpResponse
@@ -71,6 +71,15 @@ def validate_availability(request, weekday, from_hour, to_hour):
     else:
         return True
 
+def create_schedule_existance_list(results):
+    existance_list = []
+    for item in results:
+        if Schedule.objects.filter(year=item).exists():
+            existance_list.append(True)
+        else:
+            existance_list.append(False)
+    return existance_list
+
 
 def year_group_management(request):
     form = SearchYear()
@@ -87,6 +96,7 @@ def year_group_management(request):
                 results = Year.objects.all()
     else:
         results = Year.objects.all()
+    results = list(zip(results, create_schedule_existance_list(results)))
     paginator = Paginator(results, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -256,28 +266,112 @@ def edit_schedule(request, id):
     return render(request, 'schedule/edit_schedule.html', {})
 
 
+def get_schedule_items_based_on_year_zip(year_id):
+    groups = Group.objects.filter(year_id=year_id)
+    schedule_items_list = []
+    lecturer_item_list = []
+    for group in groups:
+        for item in ScheduleItem.objects.filter(group=group):
+            schedule_items_list.append(item)
+    for item in schedule_items_list:
+        if LecturerItem.objects.filter(schedule_item=item).exists():
+            lecturer_item_list.append(LecturerItem.objects.get(schedule_item=item))
+        else:
+            lecturer_item_list.append(None)
+    return zip(schedule_items_list, lecturer_item_list)
 
-def create_schedule(request):
+
+
+def create_schedule(request, id):
     """Create schedule view."""
-    #is_lecturer_free() - done
-    #is_room_free() - done
-    #is_group_free() - done
-    add_schedule_form = AddScheduleForm()
-    add_schedule_item_form = AddScheduleItemForm()
-    items = Year.objects.all()
-    if request.method == "POST":
-        form = AddScheduleForm(request.POST)
-        print("abc")
-        if form.is_valid():
-            print(form)
-            cd = form.cleaned_data
+    schedule_items = get_schedule_items_based_on_year_zip(id)
+    items = get_schedule_items_for_year(id)
+    print(is_there_unassigned_item(items))
+    if request.method == 'POST':
+        if 'add_schedule_item' in request.POST:
+            add_schedule_item_form = AddScheduleItemForm(request.POST, year_id=id)
+            if add_schedule_item_form.is_valid():
+                cd = add_schedule_item_form.cleaned_data
+                schedule_item = ScheduleItem.objects.create(group=cd['group'], lecture=cd['lecture'], lecture_units=cd['lecture_unit'])
+                LecturerItem.objects.create(schedule_item=schedule_item, lecturer=cd['lecturer'])
+        if 'create_schedule' in request.POST:
+            add_schedule_form = AddScheduleForm(request.POST)
+            if add_schedule_form.is_valid():
+                cd = add_schedule_form.cleaned_data
+            print("In progress")
+
+    else:
+        add_schedule_form = AddScheduleForm()
+        add_schedule_item_form = AddScheduleItemForm(year_id=id)
             # Schedule.objects.create(schedule_name=cd['schedule_name'], lecture_unit=cd['lecture_unit'],
-            #                         break_time=cd['break_time'], year=cd['year'])
-            print(cd)
-    #Schedule.objects.create()
+            #                          break_time=cd['break_time'], year=Schedule.objects.get(id=id))
+    generate_schedule(id, "abc")
     return render(request, 'schedule/create_schedule.html', {
         'add_schedule_form': add_schedule_form,
         'add_schedule_item_form': add_schedule_item_form,
-        'items': items})
+        'schedule_items': schedule_items})
+
+
+def generate_schedule(year_id, schedule_data):
+    """Function that generates schedule based on added schedule items."""
+    #break_time = schedule_data['break_time'] #Minimalna przerwa
+    #lecture_unit = schedule_data['lecture_unit'] #Czas trwania pojedynczej jednostki lekcyjnej
+    schedule_items = get_schedule_items_based_on_year_zip(year_id)
+    delta = datetime.timedelta(minutes=15)
+    start_time = datetime.datetime(1999,1,1,8,0,0)
+    end_time = datetime.datetime(1999,1,1,21,0,0)
+
+    while start_time <= end_time:
+        print(start_time)
+        start_time += delta
+        for schedule_item, lecturer in schedule_items:
+            duration_time = datetime.timedelta(minutes=schedule_item.lecture_units*45)
+            group_free = is_group_free(schedule_item.group, start_time, start_time + duration_time, 0)
+            lecturer_free = is_lecturer_free(lecturer.lecturer.user, 0, start_time.time(), (start_time + duration_time).time())
+            print(start_time.time())
+            print((start_time + duration_time).time())
+            if group_free and lecturer_free:
+                print("Grupa i wykładowca są wolni")
+
+
+    if not is_there_unassigned_item(schedule_items):
+        return True #Funkcja generate_schedule zwraca wartość True, gdy wszystkie pozycje zostały przydzielone
+
+    #time traversal loop
+
+
+
+
+
+    #przypisać generowanie tylko na poszczególne dni
+    #is_there_unassigned_item()
+    #is_lecturer_free() - done
+    #is_room_free() - done
+    #is_group_free() - done
+    #Stworzyć RoomItem
+    #Stworzyć LecturerItem
+    #Stworzyc Schedule
+    #Przypisać ScheduleItems do Schedule
+    #Traversal co jednostke godzinową
+    # from_hour = dt.datetime.strptime(str(from_hour), '%H:%M:%S')
+    # to_hour = dt.datetime.strptime(str(to_hour), '%H:%M:%S')
+    # from_hour = (from_hour - dt.timedelta(minutes=15)).time()
+    # to_hour = (to_hour + dt.timedelta(minutes=15)).time()
+
+def get_schedule_items_for_year(year_id):
+    groups = Group.objects.filter(year_id=year_id)
+    schedule_items = []
+    for group in groups:
+        for item in ScheduleItem.objects.filter(group=group):
+            schedule_items.append(item)
+    return schedule_items
+
+
+def is_there_unassigned_item(schedule_items):
+    for item in schedule_items:
+        if item.schedule != None:
+            return True
+    return False
+
 
 
