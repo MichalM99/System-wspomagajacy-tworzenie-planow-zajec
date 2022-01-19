@@ -90,15 +90,26 @@ class AddRoomForm(forms.ModelForm):
         model = Room
         fields = ('__all__')
 
+    def __init__(self, *args, **kwargs):
+        super(AddRoomForm, self).__init__(*args, **kwargs)
+        self.fields['type_of_lecture'].widget.attrs.update({
+            'class': 'form-control-sm'
+        })
+
 
 class EditRoomForm(forms.ModelForm):
     class Meta:
         model = Room
         fields = ('__all__')
 
+    def __init__(self, *args, **kwargs):
+        super(EditRoomForm, self).__init__(*args, **kwargs)
+        self.fields['type_of_lecture'].widget.attrs.update({
+            'class': 'form-control-sm'
+        })
+
 
 class AddScheduleForm(forms.Form):
-    schedule_name = forms.CharField(max_length=100, label='Nazwa planu')
     lecture_unit = forms.IntegerField(max_value=120, min_value=15, label='Długość jednostki godzinowej (w minutach)')
     break_time = forms.IntegerField(max_value=120, min_value=0, label='Minimalna długość przerwy (w minutach)')
 
@@ -120,4 +131,11 @@ class AddScheduleItemForm(forms.Form):
             self.fields['group'].queryset = Group.objects.filter(year_id=year_id)
 
 
+class AddRoomToScheduleForm(forms.Form):
+    room = forms.ModelChoiceField(queryset=Room.objects.all(), label='Wybierz salę')
 
+    def __init__(self, *args, **kwargs):
+        super(AddRoomToScheduleForm, self).__init__(*args, **kwargs)
+        self.fields['room'].widget.attrs.update({
+            'class': 'form-control-sm'
+        })

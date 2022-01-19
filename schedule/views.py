@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from schedule.forms import AddAvailabilityForm, AddYear, AddGroupForm, SearchYear, ManageYearForm, AddRoomForm, \
-    SearchRoom, EditRoomForm, AddScheduleForm, AddScheduleItemForm
-from schedule.models import WeekDay
+    SearchRoom, EditRoomForm, AddScheduleForm, AddScheduleItemForm, AddRoomToScheduleForm
+from schedule.models import WeekDay, RoomItem
 from schedule.models import LecturerAvailability
 from schedule.models import Year, Group, Room, Schedule, ScheduleItem, LecturerItem
 from django.shortcuts import get_object_or_404
@@ -12,10 +12,11 @@ from django.template.loader import render_to_string
 from django.views.generic import ListView
 from django.db.models import Q
 from django.core.paginator import Paginator
-from schedule.utils import check_availability, is_lecturer_free, is_room_free, is_group_free
+from schedule.utils import check_availability, is_lecturer_free, is_room_free, is_group_free, check_datetime
 from account.models import Profile
 import datetime
 import json
+
 
 def set_preferences(request):
     """Allows to add preferences for lecturer."""
@@ -70,6 +71,7 @@ def validate_availability(request, weekday, from_hour, to_hour):
         return True
     else:
         return True
+
 
 def create_schedule_existance_list(results):
     existance_list = []
@@ -248,15 +250,23 @@ def manage_schedule(request):
     paginator = Paginator(schedules, 10)
     page_number = request.GET.get('page')
     schedules = paginator.get_page(page_number)
-    #print(is_lecturer_free(User.objects.get(id=request.user.id), 0, datetime.datetime.strptime('13:15', '%H:%M').time(), datetime.datetime.strptime('14:30', '%H:%M').time()))
-    #print(is_room_free(Room.objects.get(room_name='15'), datetime.datetime.strptime('12:50', '%H:%M').time(), datetime.datetime.strptime('13:30', '%H:%M').time(), 0))
-    #print(is_group_free(Group.objects.get(id=12), datetime.datetime.strptime('13:15', '%H:%M').time(), datetime.datetime.strptime('13:45', '%H:%M').time(), 0))
+    # print(is_lecturer_free(User.objects.get(id=request.user.id), 0, datetime.datetime.strptime('13:15', '%H:%M').time(), datetime.datetime.strptime('14:30', '%H:%M').time()))
+    # print(is_room_free(Room.objects.get(room_name='15'), datetime.datetime.strptime('12:50', '%H:%M').time(), datetime.datetime.strptime('13:30', '%H:%M').time(), 0))
+    # print(is_group_free(Group.objects.get(id=12), datetime.datetime.strptime('13:15', '%H:%M').time(), datetime.datetime.strptime('13:45', '%H:%M').time(), 0))
     return render(request, 'schedule/manage_schedule.html', {'schedules': schedules})
 
 
-def delete_schedule(request, id):
+def delete_schedule(request, pk):
     """Deletes single schedule based on pk."""
-    query = Schedule.objects.get(id=id)
+    query = Schedule.objects.get(year_id=pk)
+    print(query)
+    query.delete()
+    return redirect(request.META['HTTP_REFERER'])
+
+
+def delete_schedule_item(request, id):
+    """Deletes single schedule item based on pk."""
+    query = ScheduleItem.objects.get(id=id)
     query.delete()
     return redirect(request.META['HTTP_REFERER'])
 
@@ -281,82 +291,128 @@ def get_schedule_items_based_on_year_zip(year_id):
     return zip(schedule_items_list, lecturer_item_list)
 
 
-
 def create_schedule(request, id):
     """Create schedule view."""
     schedule_items = get_schedule_items_based_on_year_zip(id)
-    items = get_schedule_items_for_year(id)
-    print(is_there_unassigned_item(items))
+    add_schedule_item_form = AddScheduleItemForm(year_id=id)
+    add_schedule_form = AddScheduleForm()
     if request.method == 'POST':
         if 'add_schedule_item' in request.POST:
             add_schedule_item_form = AddScheduleItemForm(request.POST, year_id=id)
             if add_schedule_item_form.is_valid():
                 cd = add_schedule_item_form.cleaned_data
-                schedule_item = ScheduleItem.objects.create(group=cd['group'], lecture=cd['lecture'], lecture_units=cd['lecture_unit'])
+                schedule_item = ScheduleItem.objects.create(group=cd['group'], lecture=cd['lecture'],
+                                                            lecture_units=cd['lecture_unit'])
                 LecturerItem.objects.create(schedule_item=schedule_item, lecturer=cd['lecturer'])
-        if 'create_schedule' in request.POST:
+                add_schedule_item_form = AddScheduleItemForm(year_id=id)
+                schedule_items = get_schedule_items_based_on_year_zip(id)
+                return render(request, 'schedule/create_schedule.html', {
+                    'add_schedule_form': add_schedule_form,
+                    'add_schedule_item_form': add_schedule_item_form,
+                    'schedule_items': schedule_items,
+                })
+        elif 'create_schedule' in request.POST:
             add_schedule_form = AddScheduleForm(request.POST)
             if add_schedule_form.is_valid():
                 cd = add_schedule_form.cleaned_data
-            print("In progress")
-
+                generate_schedule(id, cd)
+                return redirect(year_group_management)
     else:
         add_schedule_form = AddScheduleForm()
         add_schedule_item_form = AddScheduleItemForm(year_id=id)
-            # Schedule.objects.create(schedule_name=cd['schedule_name'], lecture_unit=cd['lecture_unit'],
-            #                          break_time=cd['break_time'], year=Schedule.objects.get(id=id))
-    generate_schedule(id, "abc")
+        # Schedule.objects.create(schedule_name=cd['schedule_name'], lecture_unit=cd['lecture_unit'],
+        #                          break_time=cd['break_time'], year=Schedule.objects.get(id=id))
     return render(request, 'schedule/create_schedule.html', {
         'add_schedule_form': add_schedule_form,
         'add_schedule_item_form': add_schedule_item_form,
-        'schedule_items': schedule_items})
+        'schedule_items': schedule_items,
+    })
+
+
+def check_if_fits_lecturer_preferences(lecturer, from_hour, to_hour, weekday):
+    """Checks whether lecturer can be assigned to classes."""
+    weekdays = WeekDay.objects.filter(weekday=weekday, lecturer=lecturer)
+    availability_count = 0
+    for weekday in weekdays:
+        availabilities = LecturerAvailability.objects.filter(weekday=weekday)
+        for availability in availabilities:
+            availability_from_hour = datetime.datetime.strptime(str(availability.from_hour), '%H:%M:%S')
+            availability_to_hour = datetime.datetime.strptime(str(availability.to_hour), '%H:%M:%S')
+            if from_hour.time() >= availability_from_hour.time() and to_hour.time() <= availability_to_hour.time():
+                return True
+    return False
+
+
+def check_if_lecturer_is_busy(lecturer, from_hour, to_hour, weekday):
+    lecturer_items = LecturerItem.objects.filter(lecturer=lecturer)
+    for item in lecturer_items:
+        schedule_item = item.schedule_item
+        if item.schedule_item.weekday == weekday:
+            if not check_datetime(from_hour, to_hour, schedule_item):
+                return False
+    return True
+
+
+def is_room_free(schedule_item, from_hour, to_hour, weekday):
+    rooms = Room.objects.filter(type_of_lecture=schedule_item.lecture.type_of_lecture)
+    for room in rooms:
+        room_items = RoomItem.objects.filter(room=room)
+        for item in room_items:
+            schedule_item = item.schedule_item
+            if item.schedule_item.weekday == weekday:
+                if not check_datetime(from_hour, to_hour, schedule_item):
+                    return False
+        return room
+    return False
 
 
 def generate_schedule(year_id, schedule_data):
     """Function that generates schedule based on added schedule items."""
-    #break_time = schedule_data['break_time'] #Minimalna przerwa
-    #lecture_unit = schedule_data['lecture_unit'] #Czas trwania pojedynczej jednostki lekcyjnej
+    # break_time = schedule_data['break_time'] #Minimalna przerwa
+    # lecture_unit = schedule_data['lecture_unit'] #Czas trwania pojedynczej jednostki lekcyjnej
     schedule_items = get_schedule_items_based_on_year_zip(year_id)
     delta = datetime.timedelta(minutes=15)
-    start_time = datetime.datetime(1999,1,1,8,0,0)
-    end_time = datetime.datetime(1999,1,1,21,0,0)
-
-    while start_time <= end_time:
-        print(start_time)
-        start_time += delta
-        for schedule_item, lecturer in schedule_items:
-            duration_time = datetime.timedelta(minutes=schedule_item.lecture_units*45)
-            group_free = is_group_free(schedule_item.group, start_time, start_time + duration_time, 0)
-            lecturer_free = is_lecturer_free(lecturer.lecturer.user, 0, start_time.time(), (start_time + duration_time).time())
-            print(start_time.time())
-            print((start_time + duration_time).time())
-            if group_free and lecturer_free:
-                print("Grupa i wykładowca są wolni")
-
+    start_time = datetime.datetime(1900, 1, 1, 8, 0, 0)
+    end_time = datetime.datetime(1900, 1, 1, 21, 0, 0)
+    schedule = Schedule.objects.create(year_id=year_id, lecture_unit=45, break_time=15)
+    for schedule_item, lecturer in schedule_items:
+        skip_loop = True
+        day_of_week = 0
+        while day_of_week < 7 and skip_loop:
+            duration_time = datetime.timedelta(minutes=schedule_item.lecture_units * 45)
+            while start_time + duration_time < end_time:
+                group_free = is_group_free(schedule_item.group, start_time, start_time + duration_time, day_of_week)
+                lecturer_free = check_if_fits_lecturer_preferences(lecturer.lecturer.user, start_time,
+                                                                   start_time + duration_time,
+                                                                   day_of_week)
+                lecturer_busy = check_if_lecturer_is_busy(lecturer.lecturer, start_time, start_time + duration_time,
+                                                          day_of_week)
+                room_free = is_room_free(schedule_item, start_time, start_time + duration_time, day_of_week)
+                can_assign_time = group_free and lecturer_free and lecturer_busy and room_free != False
+                #print(str(group_free) + str(lecturer_free) + str(lecturer_busy) + str(room_free != False))
+                if can_assign_time:
+                    ScheduleItem.objects.filter(id=schedule_item.id).update(schedule=schedule,
+                                                                            from_hour=start_time.time(),
+                                                                            to_hour=(start_time + duration_time).time(),
+                                                                            weekday=day_of_week)
+                    RoomItem.objects.create(room=room_free, schedule_item_id=schedule_item.id)
+                    day_of_week = 0
+                    skip_loop = False
+                    start_time = datetime.datetime(1900, 1, 1, 8, 0, 0)
+                    break
+                start_time += delta
+            day_of_week += 1
+            start_time = datetime.datetime(1900, 1, 1, 8, 0, 0)
 
     if not is_there_unassigned_item(schedule_items):
-        return True #Funkcja generate_schedule zwraca wartość True, gdy wszystkie pozycje zostały przydzielone
+        return True  # Funkcja generate_schedule zwraca wartość True, gdy wszystkie pozycje zostały przydzielone
 
-    #time traversal loop
-
-
-
-
-
-    #przypisać generowanie tylko na poszczególne dni
-    #is_there_unassigned_item()
-    #is_lecturer_free() - done
-    #is_room_free() - done
-    #is_group_free() - done
-    #Stworzyć RoomItem
-    #Stworzyć LecturerItem
-    #Stworzyc Schedule
-    #Przypisać ScheduleItems do Schedule
-    #Traversal co jednostke godzinową
+    # przypisać generowanie tylko na poszczególne dni
     # from_hour = dt.datetime.strptime(str(from_hour), '%H:%M:%S')
     # to_hour = dt.datetime.strptime(str(to_hour), '%H:%M:%S')
     # from_hour = (from_hour - dt.timedelta(minutes=15)).time()
     # to_hour = (to_hour + dt.timedelta(minutes=15)).time()
+
 
 def get_schedule_items_for_year(year_id):
     groups = Group.objects.filter(year_id=year_id)
@@ -372,6 +428,3 @@ def is_there_unassigned_item(schedule_items):
         if item.schedule != None:
             return True
     return False
-
-
-

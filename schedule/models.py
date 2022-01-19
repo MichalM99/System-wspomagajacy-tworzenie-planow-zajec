@@ -13,6 +13,12 @@ DAYS_OF_WEEK = (
     (6, 'Niedziela'),
 )
 
+TYPE_OF_LECTURE = (
+    (0, 'Laboratorium'),
+    (1, 'Ćwiczenia'),
+    (2, 'Wykład'),
+)
+
 class Year(models.Model):
     year_name = models.CharField(verbose_name='kierunek', max_length=100)
     speciality = models.CharField(verbose_name='Specjalność', max_length=50)
@@ -30,7 +36,7 @@ class Year(models.Model):
 
 
 class Schedule(models.Model):
-    schedule_name = models.CharField(verbose_name='nazwa planu', max_length=100)
+    schedule_name = models.CharField(verbose_name='nazwa planu', max_length=100, null=True, blank=True)
     lecture_unit = models.IntegerField(verbose_name='długość jednostki godzinowej (w minutach)', default=45)
     break_time = models.IntegerField(verbose_name='długość przerwy (w minutach)', default=15)
     year = models.ForeignKey(Year, verbose_name='Powiązany kierunek', on_delete=models.CASCADE, null=True)
@@ -59,9 +65,10 @@ class Group(models.Model):
 
 class Lecture(models.Model):
     lecture_name = models.CharField(verbose_name='nazwa zajęć', max_length=100)
+    type_of_lecture = models.IntegerField(choices=TYPE_OF_LECTURE, verbose_name='Rodzaj zajęć')
 
     def __str__(self):
-        return self.lecture_name
+        return self.lecture_name + ' (' + str(self.get_type_of_lecture_display()[:2]) + '.)'
 
 
 class ScheduleItem(models.Model):
@@ -71,7 +78,7 @@ class ScheduleItem(models.Model):
     from_hour = models.TimeField(null=True, blank=True)
     to_hour = models.TimeField(null=True, blank=True)
     weekday = models.IntegerField(choices=DAYS_OF_WEEK, null=True, blank=True)
-    lecture_units = models.IntegerField(default=15)
+    lecture_units = models.IntegerField(default=2)
 
 
     class Meta:
@@ -80,6 +87,7 @@ class ScheduleItem(models.Model):
 
 class Room(models.Model):
     room_name = models.CharField(verbose_name='nazwa sali', max_length=100)
+    type_of_lecture = models.IntegerField(choices=TYPE_OF_LECTURE, verbose_name='Rodzaj przewidzianych zajęć')
     capacity = models.IntegerField(verbose_name='pojemnosc')
     description = models.TextField(verbose_name='opis sali', max_length=255)
 
@@ -94,7 +102,7 @@ class Room(models.Model):
 
 class RoomItem(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
-    schedule_item = models.ForeignKey(ScheduleItem, on_delete=models.CASCADE)
+    schedule_item = models.ForeignKey(ScheduleItem, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return self.room.room_name + ' ' + self.schedule_item.get_weekday_display() + ' ' + str(self.schedule_item.from_hour) + \

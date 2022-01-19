@@ -27,6 +27,7 @@
             <table class="table">
                 <thead>
                 <th scope="col">Nazwa/numer</th>
+                <th scope="col">Rodzaj sali</th>
                 <th scope="col">Pojemność</th>
                 <th scope="col">Opis</th>
                 <th scope="col">Opcje</th>
@@ -35,6 +36,7 @@
                 {% for room in rooms %}
                     <tr>
                         <th scope="row">{{ room.room_name }}</th>
+                        <th> {{ room.get_type_of_lecture_display }}</th>
                         <th> {{ room.capacity }}</th>
                         <th>{{ room.description }}</th>
                         <th><a class="btn btn-info btn-sm managebtn" href="{% url 'edit_room' id=room.id %}">Zarządzaj

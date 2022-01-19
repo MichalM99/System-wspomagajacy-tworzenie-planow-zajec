@@ -46,11 +46,42 @@
                         <th><a class="btn btn-info btn-sm managebtn" href="{% url 'manage_year' id=year.id %}">Zarządzaj
                             kierunkiem</a>
 
-                            {% if item == False  %}
-                                <a class="btn btn-info btn-sm managebtn" href="{% url 'create_schedule' id=year.id %}">Stwórz plan</a>
+                            {% if item == False %}
+                                <a class="btn btn-info btn-sm managebtn" href="{% url 'create_schedule' id=year.id %}">Stwórz
+                                    plan</a>
                             {% else %}
                                 <a class="btn btn-info btn-sm managebtn" href="">Edytuj plan</a>
                                 <a class="btn btn-info btn-sm managebtn" href="">Wyświetl plan</a>
+                                <div class="modal fade" id="deleteScheduleModal" tabindex="-1" role="dialog"
+                                     aria-labelledby="deleteScheduleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="deleteScheduleModalLabel">Potwierdź
+                                                    usunięcie
+                                                    planu</h5>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Czy jesteś pewien, że chcesz usunąć plan?</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-info btn-sm" data-dismiss="modal">
+                                                    Powrót do listy planów
+                                                </button>
+                                                <a href="{% url 'delete_schedule' pk=year.id %}"
+                                                   class="btn btn-outline-info managebtn btn-sm" type="submit">Usuń
+                                                    plan</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a class="btn btn-outline-info btn-sm managebtn" data-toggle="modal"
+                                   data-target="#deleteScheduleModal" href="">Usuń
+                                    plan</a>
                             {% endif %}
                             <div class="modal fade" id="deleteYearModal" tabindex="-1" role="dialog"
                                  aria-labelledby="deleteYearModalLabel" aria-hidden="true">
