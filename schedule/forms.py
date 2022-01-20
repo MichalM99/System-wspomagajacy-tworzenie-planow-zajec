@@ -111,7 +111,7 @@ class EditRoomForm(forms.ModelForm):
 
 class AddScheduleForm(forms.Form):
     lecture_unit = forms.IntegerField(max_value=120, min_value=15, label='Długość jednostki godzinowej (w minutach)')
-    break_time = forms.IntegerField(max_value=120, min_value=0, label='Minimalna długość przerwy (w minutach)')
+    break_time = forms.IntegerField(max_value=120, min_value=15, label='Minimalna długość przerwy (w minutach)')
 
 
 class AddScheduleItemForm(forms.Form):

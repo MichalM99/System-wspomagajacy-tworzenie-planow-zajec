@@ -76,11 +76,21 @@ def validate_availability(request, weekday, from_hour, to_hour):
 def create_schedule_existance_list(results):
     existance_list = []
     for item in results:
-        if Schedule.objects.filter(year=item).exists():
+        if Schedule.objects.filter(year=item):
             existance_list.append(True)
         else:
             existance_list.append(False)
     return existance_list
+
+
+def get_schedule_ids(results):
+    schedule_ids = []
+    for item in results:
+        if Schedule.objects.filter(year=item):
+            schedule_ids.append(Schedule.objects.get(year_id=item.id))
+        else:
+            schedule_ids.append(None)
+    return schedule_ids
 
 
 def year_group_management(request):
@@ -98,7 +108,8 @@ def year_group_management(request):
                 results = Year.objects.all()
     else:
         results = Year.objects.all()
-    results = list(zip(results, create_schedule_existance_list(results)))
+    schedule_ids = get_schedule_ids(results)
+    results = list(zip(results, create_schedule_existance_list(results), schedule_ids))
     paginator = Paginator(results, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -291,6 +302,7 @@ def get_schedule_items_based_on_year_zip(year_id):
     return zip(schedule_items_list, lecturer_item_list)
 
 
+
 def create_schedule(request, id):
     """Create schedule view."""
     schedule_items = get_schedule_items_based_on_year_zip(id)
@@ -315,13 +327,27 @@ def create_schedule(request, id):
             add_schedule_form = AddScheduleForm(request.POST)
             if add_schedule_form.is_valid():
                 cd = add_schedule_form.cleaned_data
-                generate_schedule(id, cd)
+                items_count = len(list(schedule_items)) < 1
+                if items_count:
+                    return render(request, 'schedule/create_schedule.html', {
+                        'add_schedule_form': add_schedule_form,
+                        'add_schedule_item_form': add_schedule_item_form,
+                        'schedule_items': schedule_items,
+                        'items_count': items_count,
+                    })
+                is_generated = generate_schedule(id, cd)
+                if is_generated == False:
+                    return render(request, 'schedule/create_schedule.html', {
+                        'add_schedule_form': add_schedule_form,
+                        'add_schedule_item_form': add_schedule_item_form,
+                        'schedule_items': schedule_items,
+                        'is_generated': is_generated,
+                    })
                 return redirect(year_group_management)
     else:
         add_schedule_form = AddScheduleForm()
         add_schedule_item_form = AddScheduleItemForm(year_id=id)
-        # Schedule.objects.create(schedule_name=cd['schedule_name'], lecture_unit=cd['lecture_unit'],
-        #                          break_time=cd['break_time'], year=Schedule.objects.get(id=id))
+
     return render(request, 'schedule/create_schedule.html', {
         'add_schedule_form': add_schedule_form,
         'add_schedule_item_form': add_schedule_item_form,
@@ -368,24 +394,32 @@ def is_room_free(schedule_item, from_hour, to_hour, weekday):
 
 def generate_schedule(year_id, schedule_data):
     """Function that generates schedule based on added schedule items."""
-    # break_time = schedule_data['break_time'] #Minimalna przerwa
-    # lecture_unit = schedule_data['lecture_unit'] #Czas trwania pojedynczej jednostki lekcyjnej
+    break_time = datetime.timedelta(minutes=schedule_data['break_time'] - 15) #Minimalna przerwa
+    lecture_unit_duration = schedule_data['lecture_unit'] #Czas trwania pojedynczej jednostki lekcyjnej
     schedule_items = get_schedule_items_based_on_year_zip(year_id)
     delta = datetime.timedelta(minutes=15)
     start_time = datetime.datetime(1900, 1, 1, 8, 0, 0)
     end_time = datetime.datetime(1900, 1, 1, 21, 0, 0)
-    schedule = Schedule.objects.create(year_id=year_id, lecture_unit=45, break_time=15)
+    schedule = Schedule.objects.create(year_id=year_id, lecture_unit=lecture_unit_duration, break_time=schedule_data['break_time'] - 15)
+    year = Year.objects.get(id=year_id)
+    if year.type_of_studies == 'stacjonarne':
+        start_day = 0
+        end_day = 4
+    elif year.type_of_studies == 'niestacjonarne':
+        start_day = 4
+        end_day = 6
+
     for schedule_item, lecturer in schedule_items:
         skip_loop = True
-        day_of_week = 0
-        while day_of_week < 7 and skip_loop:
-            duration_time = datetime.timedelta(minutes=schedule_item.lecture_units * 45)
+        day_of_week = start_day
+        while day_of_week <= end_day and skip_loop:
+            duration_time = datetime.timedelta(minutes=schedule_item.lecture_units * lecture_unit_duration)
             while start_time + duration_time < end_time:
-                group_free = is_group_free(schedule_item.group, start_time, start_time + duration_time, day_of_week)
-                lecturer_free = check_if_fits_lecturer_preferences(lecturer.lecturer.user, start_time,
-                                                                   start_time + duration_time,
+                group_free = is_group_free(schedule_item.group, start_time - break_time, start_time + duration_time + break_time, day_of_week)
+                lecturer_free = check_if_fits_lecturer_preferences(lecturer.lecturer.user, start_time - break_time,
+                                                                   start_time + duration_time + break_time,
                                                                    day_of_week)
-                lecturer_busy = check_if_lecturer_is_busy(lecturer.lecturer, start_time, start_time + duration_time,
+                lecturer_busy = check_if_lecturer_is_busy(lecturer.lecturer, start_time - break_time, start_time + duration_time + break_time,
                                                           day_of_week)
                 room_free = is_room_free(schedule_item, start_time, start_time + duration_time, day_of_week)
                 can_assign_time = group_free and lecturer_free and lecturer_busy and room_free != False
@@ -404,8 +438,12 @@ def generate_schedule(year_id, schedule_data):
             day_of_week += 1
             start_time = datetime.datetime(1900, 1, 1, 8, 0, 0)
 
-    if not is_there_unassigned_item(schedule_items):
-        return True  # Funkcja generate_schedule zwraca wartość True, gdy wszystkie pozycje zostały przydzielone
+
+    if is_there_unassigned_item(year_id):
+        print('nie mozna utworzyć planu')
+        Schedule.objects.filter(id=schedule.id).delete()
+        return False #Returns False if plan couldn't be generated
+    return True #Returns True if plan could be generated
 
     # przypisać generowanie tylko na poszczególne dni
     # from_hour = dt.datetime.strptime(str(from_hour), '%H:%M:%S')
@@ -423,8 +461,37 @@ def get_schedule_items_for_year(year_id):
     return schedule_items
 
 
-def is_there_unassigned_item(schedule_items):
+def is_there_unassigned_item(year_id):
+    schedule_items = get_schedule_items_for_year(year_id)
     for item in schedule_items:
-        if item.schedule != None:
+        if item.schedule is None:
             return True
     return False
+
+
+def schedule_view(request, id):
+    schedule_items = ScheduleItem.objects.filter(schedule=Schedule.objects.get(id=id))
+    data_set = []
+    days = get_days_of_week(schedule_items)
+    for schedule_item in schedule_items:
+        lecturer = LecturerItem.objects.get(schedule_item=schedule_item)
+        room = RoomItem.objects.get(schedule_item=schedule_item)
+        data_set.append({schedule_item.get_weekday_display():
+                '{} {} - {}'.format(str(schedule_item.lecture),
+                                     str(schedule_item.from_hour),
+                                     str(schedule_item.to_hour),
+                                     )})
+    return render(request, 'schedule/schedule_view.html', {
+        'data_set': data_set,
+        'days': days,
+    })
+
+
+
+
+def get_days_of_week(schedule_items):
+    days = []
+    for item in schedule_items:
+        if item.get_weekday_display() not in days:
+            days.append(item.get_weekday_display())
+    return days

@@ -35,7 +35,7 @@
                 <th scope="col">Opcje</th>
                 </thead>
                 <tbody>
-                {% for year, item in page_obj %}
+                {% for year, item, schedule_id in page_obj %}
 
 
                     <tr>
@@ -51,7 +51,7 @@
                                     plan</a>
                             {% else %}
                                 <a class="btn btn-info btn-sm managebtn" href="">Edytuj plan</a>
-                                <a class="btn btn-info btn-sm managebtn" href="">Wyświetl plan</a>
+                                <a class="btn btn-info btn-sm managebtn" href="{% url 'schedule_view' id=schedule_id.id %}">Wyświetl plan</a>
                                 <div class="modal fade" id="deleteScheduleModal" tabindex="-1" role="dialog"
                                      aria-labelledby="deleteScheduleModalLabel" aria-hidden="true">
                                     <div class="modal-dialog" role="document">

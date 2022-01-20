@@ -1,5 +1,7 @@
 import datetime
 import datetime as dt
+import json
+
 from schedule.models import Room, Profile, LecturerAvailability, WeekDay, ScheduleItem, LecturerItem, RoomItem
 
 

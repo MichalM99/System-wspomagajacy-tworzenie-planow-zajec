@@ -14,6 +14,12 @@
             <div class="card">
                 <h5 class="card-header">Określ główne parametry</h5>
                 <div class="card-body">
+                    {% if is_generated == False %}
+                        <p class="font-weight-bolder">Plan nie mógł zostać wygenerowany z uwagi na dostępność sal, wykładowców, bądź grup!</p>
+                    {% endif %}
+                    {% if items_count == True %}
+                        <p class="font-weight-bolder">Do planu nie zostały przydzielone żadne jednostki zajęciowe! </p>
+                    {% endif %}
                     <form action="." method="post">
                         {{ add_schedule_form|crispy }}
                         {% csrf_token %}

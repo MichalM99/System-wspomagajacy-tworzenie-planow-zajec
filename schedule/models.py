@@ -60,7 +60,7 @@ class Group(models.Model):
         verbose_name_plural = 'grupy'
 
     def __str__(self):
-        return self.year.year_name + ', grupa nr ' + str(self.group_number) + ', liczebność: ' + str(self.quantity)
+        return 'grupa nr ' + str(self.group_number)
 
 
 class Lecture(models.Model):
@@ -83,6 +83,9 @@ class ScheduleItem(models.Model):
 
     class Meta:
         verbose_name = 'pozycja planu'
+        
+
+
 
 
 class Room(models.Model):
