@@ -121,14 +121,14 @@ class AddScheduleItemForm(forms.Form):
                                   widget=forms.Select(attrs={'class': 'form-control-sm'}))
     lecturer = forms.ModelChoiceField(queryset=Profile.objects.all(), label='Prowadzący',
                                   widget=forms.Select(attrs={'class': 'form-control-sm'}))
-    lecture_unit = forms.IntegerField(label='Liczba jednostek godzinowych jednorazowo')
+    lecture_unit = forms.IntegerField(label='Liczba jednostek godzinowych jednorazowo', max_value=10)
 
     def __init__(self, *args, **kwargs):
         year_id = kwargs.pop('year_id', None)
         super(AddScheduleItemForm, self).__init__(*args, **kwargs)
 
         if year_id:
-            self.fields['group'].queryset = Group.objects.filter(year_id=year_id)
+            self.fields['group'].queryset = Group.objects.filter(year_id=year_id).order_by('group_number')
 
 
 class AddRoomToScheduleForm(forms.Form):

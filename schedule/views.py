@@ -133,7 +133,7 @@ def add_year(request):
 
 def manage_year(request, id):
     """Basically DetailView for Year model."""
-    groups = Group.objects.filter(year_id=id)
+    groups = Group.objects.filter(year_id=id).order_by('group_number')
     data = get_object_or_404(Year, pk=id)
     if request.method == "POST":
         form = ManageYearForm(instance=data, data=request.POST)
@@ -288,11 +288,12 @@ def edit_schedule(request, id):
 
 
 def get_schedule_items_based_on_year_zip(year_id):
-    groups = Group.objects.filter(year_id=year_id)
+    groups = Group.objects.filter(year_id=year_id).order_by('group_number')
     schedule_items_list = []
     lecturer_item_list = []
+
     for group in groups:
-        for item in ScheduleItem.objects.filter(group=group):
+        for item in ScheduleItem.objects.filter(group=group).order_by('group__group_number'):
             schedule_items_list.append(item)
     for item in schedule_items_list:
         if LecturerItem.objects.filter(schedule_item=item).exists():
@@ -300,7 +301,6 @@ def get_schedule_items_based_on_year_zip(year_id):
         else:
             lecturer_item_list.append(None)
     return zip(schedule_items_list, lecturer_item_list)
-
 
 
 def create_schedule(request, id):
@@ -394,13 +394,14 @@ def is_room_free(schedule_item, from_hour, to_hour, weekday):
 
 def generate_schedule(year_id, schedule_data):
     """Function that generates schedule based on added schedule items."""
-    break_time = datetime.timedelta(minutes=schedule_data['break_time'] - 15) #Minimalna przerwa
-    lecture_unit_duration = schedule_data['lecture_unit'] #Czas trwania pojedynczej jednostki lekcyjnej
+    break_time = datetime.timedelta(minutes=schedule_data['break_time'] - 15)  # Minimalna przerwa
+    lecture_unit_duration = schedule_data['lecture_unit']  # Czas trwania pojedynczej jednostki lekcyjnej
     schedule_items = get_schedule_items_based_on_year_zip(year_id)
     delta = datetime.timedelta(minutes=15)
     start_time = datetime.datetime(1900, 1, 1, 8, 0, 0)
     end_time = datetime.datetime(1900, 1, 1, 21, 0, 0)
-    schedule = Schedule.objects.create(year_id=year_id, lecture_unit=lecture_unit_duration, break_time=schedule_data['break_time'] - 15)
+    schedule = Schedule.objects.create(year_id=year_id, lecture_unit=lecture_unit_duration,
+                                       break_time=schedule_data['break_time'] - 15)
     year = Year.objects.get(id=year_id)
     if year.type_of_studies == 'stacjonarne':
         start_day = 0
@@ -415,15 +416,17 @@ def generate_schedule(year_id, schedule_data):
         while day_of_week <= end_day and skip_loop:
             duration_time = datetime.timedelta(minutes=schedule_item.lecture_units * lecture_unit_duration)
             while start_time + duration_time < end_time:
-                group_free = is_group_free(schedule_item.group, start_time - break_time, start_time + duration_time + break_time, day_of_week)
+                group_free = is_group_free(schedule_item.group, start_time - break_time,
+                                           start_time + duration_time + break_time, day_of_week)
                 lecturer_free = check_if_fits_lecturer_preferences(lecturer.lecturer.user, start_time - break_time,
                                                                    start_time + duration_time + break_time,
                                                                    day_of_week)
-                lecturer_busy = check_if_lecturer_is_busy(lecturer.lecturer, start_time - break_time, start_time + duration_time + break_time,
+                lecturer_busy = check_if_lecturer_is_busy(lecturer.lecturer, start_time - break_time,
+                                                          start_time + duration_time + break_time,
                                                           day_of_week)
                 room_free = is_room_free(schedule_item, start_time, start_time + duration_time, day_of_week)
                 can_assign_time = group_free and lecturer_free and lecturer_busy and room_free != False
-                #print(str(group_free) + str(lecturer_free) + str(lecturer_busy) + str(room_free != False))
+                # print(str(group_free) + str(lecturer_free) + str(lecturer_busy) + str(room_free != False))
                 if can_assign_time:
                     ScheduleItem.objects.filter(id=schedule_item.id).update(schedule=schedule,
                                                                             from_hour=start_time.time(),
@@ -438,12 +441,11 @@ def generate_schedule(year_id, schedule_data):
             day_of_week += 1
             start_time = datetime.datetime(1900, 1, 1, 8, 0, 0)
 
-
     if is_there_unassigned_item(year_id):
         print('nie mozna utworzyć planu')
         Schedule.objects.filter(id=schedule.id).delete()
-        return False #Returns False if plan couldn't be generated
-    return True #Returns True if plan could be generated
+        return False  # Returns False if plan couldn't be generated
+    return True  # Returns True if plan could be generated
 
     # przypisać generowanie tylko na poszczególne dni
     # from_hour = dt.datetime.strptime(str(from_hour), '%H:%M:%S')
@@ -469,21 +471,44 @@ def is_there_unassigned_item(year_id):
     return False
 
 
+
 def schedule_view(request, id):
-    schedule_items = ScheduleItem.objects.filter(schedule=Schedule.objects.get(id=id))
+    schedule_items = ScheduleItem.objects.filter(schedule=Schedule.objects.get(id=id)).order_by('weekday', 'from_hour')
+    year = Schedule.objects.get(id=id).year
     data_set = []
-    days = get_days_of_week(schedule_items)
+    data_dict = {}
+    groups = []
+    days_group = {}
+    for schedule_item in schedule_items:
+        data_dict[schedule_item.group] = []
+        if schedule_item.group not in groups:
+            groups.append(schedule_item.group)
+
+    for group in groups:
+        days_group[group] = []
+        items = ScheduleItem.objects.filter(group=group)
+        for item in items:
+            if item.get_weekday_display() not in days_group[group]:
+                days_group[group].append(item.get_weekday_display())
+        days_group[group].sort()
+
     for schedule_item in schedule_items:
         lecturer = LecturerItem.objects.get(schedule_item=schedule_item)
         room = RoomItem.objects.get(schedule_item=schedule_item)
-        data_set.append({schedule_item.get_weekday_display():
-                '{} {} - {}'.format(str(schedule_item.lecture),
-                                     str(schedule_item.from_hour),
-                                     str(schedule_item.to_hour),
-                                     )})
+        list = []
+        list.append(str(schedule_item.lecture))
+        list.append(str(schedule_item.from_hour))
+        list.append(str(schedule_item.to_hour))
+        list.append(str(lecturer.lecturer))
+        list.append(str(room.room))
+        item = {schedule_item.get_weekday_display(): list}
+        data_set.append(item)
+        data_dict[schedule_item.group].append(item)
     return render(request, 'schedule/schedule_view.html', {
         'data_set': data_set,
-        'days': days,
+        'data_dict': data_dict,
+        'days_group': days_group,
+        'year': year,
     })
 
 

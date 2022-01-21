@@ -60,7 +60,7 @@ class Group(models.Model):
         verbose_name_plural = 'grupy'
 
     def __str__(self):
-        return 'grupa nr ' + str(self.group_number)
+        return 'Grupa ' + str(self.group_number)
 
 
 class Lecture(models.Model):

@@ -17,7 +17,7 @@
             <li class="header">Menu</li>
             <li>
                 <a href="{% url 'dashboard' %}">
-                    <i class="fa fa-home" aria-hidden="true"></i> Panel główny (do zrobienia)
+                    <i class="fa fa-home" aria-hidden="true"></i> Panel główny
                 </a>
             </li>
             <li>
@@ -55,11 +55,6 @@
             </li>
             {% if user.is_staff %}
                 <li class="header">Panel administratora</li>
-                <!--<li>
-      <a href="{% url 'manage_schedule' %}">
-        <i class="fa fa-cog" aria-hidden="true"></i> Zarządzaj planami (do zrobienia)
-      </a>
-      </li> -->
                 <li>
                     <a href="{% url "yg_management" %}">
                         <i class="fa fa-cog" aria-hidden="true"></i> Zarządzaj planami
@@ -86,7 +81,37 @@
     <div class="content-container">
         <div class="container-fluid">
             {% block screen %}
-
-
+                <div class="card" style="width: 60rem;">
+                    <h5 class="card-header">Widok planu: {{ lecturer }}</h5>
+                    <div class="card-body">
+                        <table class="table table-sm table-bordered table-striped schedule-tab">
+                        <thead>
+                        <th class="" scope="col">Zajęcia:</th>
+                        <th class="" scope="col">Od:</th>
+                        <th class="" scope="col">Do:</th>
+                        <th class="" scope="col">Prowadzący:</th>
+                        <th class="" scope="col">Sala:</th>
+                        </thead>
+                        <tbody>
+                        {% for day in days %}
+                            <th class="text-center" colspan="5" scope="row">{{ day }}</th>
+                            {% for item in data_set %}
+                                {% for key, value in item.items %}
+                                    {% if key == day %}
+                                        <tr>
+                                            {% for cls in value %}
+                                                <td>{{ cls }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                        {% endfor %}
+                        </tbody>
+                        </table>
+                    </div>
+                </div>
             {% endblock %}
+        </div>
+    </div>
 {% endblock %}

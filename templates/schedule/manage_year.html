@@ -59,14 +59,15 @@
                                                 Powrót do listy grup
                                             </button>
                                             <a href="{% url 'delete_group' id=group.id pk=data.id %}"
-                                               class="btn btn-outline-info btn-sm" type="submit">Usuń grupę</a>
+                                               class="btn btn-outline-info btn-sm" type="submit">Usuń
+                                                grupę {{ group.id }}</a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <button type="button" class="btn btn-outline-info" data-toggle="modal"
                                     data-target="#deleteGroupModal">
-                                Usuń grupę
+                                Usuń grupę {{ group.id }}
                             </button>
                         </th>
                     </tr>
