@@ -24,9 +24,15 @@
 }
 
 .sidebar-logo {
-    padding: 10px 15px 10px 30px;
+    border-bottom: 5px solid #39C0ED;
+    padding: 2rem 0px 0.5rem 0.5rem;
     font-size: 20px;
-    background-color: #39C0ED;
+    margin: 0 2rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    text-align: center;
+    display: block;
+    color: #fff;
 }
 
 .sidebar-navigation {
@@ -42,6 +48,12 @@
     display: inline-block;
     width: 100%;
     line-height: 20px;
+}
+
+.innerlogo {
+    margin-right: 2rem;
+    margin-left: 2rem;
+    margin-bottom: 1rem;
 }
 
 .sidebar-navigation li a {

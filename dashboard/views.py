@@ -1,14 +1,13 @@
 import datetime
 
-from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-
+from django.core.paginator import Paginator
+from django.shortcuts import redirect, render
 
 from account.models import Profile
 from dashboard.forms import AddNewsForm
 from dashboard.models import News
-from schedule.models import Schedule, ScheduleItem, LecturerItem, RoomItem
+from schedule.models import LecturerItem, RoomItem, Schedule, ScheduleItem
 
 
 @login_required
@@ -78,3 +77,4 @@ def add_news(request):
     else:
         add_news_form = AddNewsForm()
     return render(request, "dashboard/add_news.html", {'add_news_form': add_news_form})
+

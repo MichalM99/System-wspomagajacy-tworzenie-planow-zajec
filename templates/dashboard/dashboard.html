@@ -10,8 +10,9 @@
     <link rel='stylesheet' href="{% static 'css/dashboard.css' %}" type="text/css"/>
     <div class="sidebar-container">
         <div class="sidebar-logo">
-            <img id="" src="{% static 'images/timetable.png' %}" alt="timetable logo">
-            <h5>SWTPZ</h5>
+            <div class="innerlogo">
+                <p class="font-weight-bold" style="color: #fff;">System wspomagający tworzenie planów zajęć</p>
+            </div>
         </div>
         <ul class="sidebar-navigation">
             <li class="header">Menu</li>
@@ -85,29 +86,29 @@
                     <h5 class="card-header">Widok planu: {{ lecturer }}</h5>
                     <div class="card-body">
                         <table class="table table-sm table-bordered table-striped schedule-tab">
-                        <thead>
-                        <th class="" scope="col">Zajęcia:</th>
-                        <th class="" scope="col">Od:</th>
-                        <th class="" scope="col">Do:</th>
-                        <th class="" scope="col">Prowadzący:</th>
-                        <th class="" scope="col">Sala:</th>
-                        </thead>
-                        <tbody>
-                        {% for day in days %}
-                            <th class="text-center" colspan="5" scope="row">{{ day }}</th>
-                            {% for item in data_set %}
-                                {% for key, value in item.items %}
-                                    {% if key == day %}
-                                        <tr>
-                                            {% for cls in value %}
-                                                <td>{{ cls }}</td>
-                                            {% endfor %}
-                                        </tr>
-                                    {% endif %}
+                            <thead>
+                            <th class="" scope="col">Zajęcia:</th>
+                            <th class="" scope="col">Od:</th>
+                            <th class="" scope="col">Do:</th>
+                            <th class="" scope="col">Prowadzący:</th>
+                            <th class="" scope="col">Sala:</th>
+                            </thead>
+                            <tbody>
+                            {% for day in days %}
+                                <th class="text-center" colspan="5" scope="row">{{ day }}</th>
+                                {% for item in data_set %}
+                                    {% for key, value in item.items %}
+                                        {% if key == day %}
+                                            <tr>
+                                                {% for cls in value %}
+                                                    <td>{{ cls }}</td>
+                                                {% endfor %}
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
                                 {% endfor %}
                             {% endfor %}
-                        {% endfor %}
-                        </tbody>
+                            </tbody>
                         </table>
                         <a class="btn btn-info" id="registerbutton" href="#">Pobierz plan w formacie PDF</a>
                     </div>

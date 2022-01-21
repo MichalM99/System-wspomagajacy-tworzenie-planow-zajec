@@ -1,6 +1,7 @@
 import random
 import string
 
+
 def create_username(first_name, last_name):
     username = first_name[0:3] + last_name[0:3] + str(random.randint(0,99))
     return username

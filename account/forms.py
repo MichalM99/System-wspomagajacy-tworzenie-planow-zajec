@@ -1,8 +1,11 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UsernameField
 from django.contrib.auth.models import User
+
 from account import utils
+
 from .models import Profile
+
 
 class UserLoginForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):

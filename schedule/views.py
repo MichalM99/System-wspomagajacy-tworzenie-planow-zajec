@@ -1,21 +1,23 @@
-from django.contrib.auth.models import User
-from django.shortcuts import render
-from schedule.forms import AddAvailabilityForm, AddYear, AddGroupForm, SearchYear, ManageYearForm, AddRoomForm, \
-    SearchRoom, EditRoomForm, AddScheduleForm, AddScheduleItemForm, AddRoomToScheduleForm
-from schedule.models import WeekDay, RoomItem
-from schedule.models import LecturerAvailability
-from schedule.models import Year, Group, Room, Schedule, ScheduleItem, LecturerItem
-from django.shortcuts import get_object_or_404
-from django.shortcuts import redirect
-from django.http import JsonResponse, HttpResponse
-from django.template.loader import render_to_string
-from django.views.generic import ListView
-from django.db.models import Q
-from django.core.paginator import Paginator
-from schedule.utils import check_availability, is_lecturer_free, is_room_free, is_group_free, check_datetime
-from account.models import Profile
 import datetime
-import json
+
+from django.contrib.auth.models import User
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import get_template, render_to_string
+from django.views.generic import View
+
+from account.models import Profile
+from dashboard.views import get_schedule_items_for_lecturer
+from schedule.forms import (AddAvailabilityForm, AddGroupForm, AddRoomForm,
+                            AddRoomToScheduleForm, AddScheduleForm,
+                            AddScheduleItemForm, AddYear, EditRoomForm,
+                            ManageYearForm, SearchRoom, SearchYear)
+from schedule.models import (Group, LecturerAvailability, LecturerItem, Room,
+                             RoomItem, Schedule, ScheduleItem, WeekDay, Year)
+from schedule.utils import (check_availability, check_datetime, is_group_free,
+                            is_lecturer_free, is_room_free)
 
 
 def set_preferences(request):
@@ -471,7 +473,6 @@ def is_there_unassigned_item(year_id):
     return False
 
 
-
 def schedule_view(request, id):
     schedule_items = ScheduleItem.objects.filter(schedule=Schedule.objects.get(id=id)).order_by('weekday', 'from_hour')
     year = Schedule.objects.get(id=id).year
@@ -512,11 +513,18 @@ def schedule_view(request, id):
     })
 
 
-
-
 def get_days_of_week(schedule_items):
     days = []
     for item in schedule_items:
         if item.get_weekday_display() not in days:
             days.append(item.get_weekday_display())
     return days
+
+
+
+
+
+
+
+
+

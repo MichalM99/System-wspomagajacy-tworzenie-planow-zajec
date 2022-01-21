@@ -1,7 +1,9 @@
-from django.db import models
-from django.contrib.auth.models import User
-from account.models import Profile
 import datetime as dt
+
+from django.contrib.auth.models import User
+from django.db import models
+
+from account.models import Profile
 
 DAYS_OF_WEEK = (
     (0, 'Poniedziałek'),

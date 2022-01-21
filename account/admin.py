@@ -1,8 +1,10 @@
 from django.contrib import admin
 
-import schedule.models
 import account.models
+import schedule.models
 from account.models import Profile
+
+
 # Register your models here.
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):

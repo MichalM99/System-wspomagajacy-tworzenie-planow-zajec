@@ -1,15 +1,16 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from django.contrib.auth import authenticate, login
-from django.core.mail import send_mail
-from account import utils
-from .models import Profile
-from account.forms import UserRegistrationForm
-from account.forms import UserLoginForm
-from account.forms import UserEditForm
-from account.forms import ProfileEditForm
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from django.http import HttpResponse
+from django.shortcuts import redirect, render
+
+from account import utils
+from account.forms import (ProfileEditForm, UserEditForm, UserLoginForm,
+                           UserRegistrationForm)
+
+from .models import Profile
+
 
 def register(request):
     if request.method == 'POST':
@@ -33,6 +34,12 @@ def register(request):
         user_form = UserRegistrationForm()
     return render(request, 'dashboard/registeruser.html',
                       {'user_form': user_form})
+
+
+def register_many_users(request):
+    return render(request, 'dashboard/registeruser.html',
+                      {})
+
 
 
 @login_required

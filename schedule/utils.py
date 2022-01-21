@@ -1,17 +1,17 @@
 import datetime
 import datetime as dt
-import json
 
-from schedule.models import Room, Profile, LecturerAvailability, WeekDay, ScheduleItem, LecturerItem, RoomItem
+from schedule.models import (LecturerAvailability, LecturerItem, Profile, Room,
+                             RoomItem, ScheduleItem, WeekDay)
 
 
 def generate_hours(step_minutes, start_hour, end_hour):
     hours = []
     for i in range(start_hour, end_hour):
-        for j in range(int(60/step_minutes)):
-            time_str = str(i) + ':' + str(j*step_minutes).zfill(2)
+        for j in range(int(60 / step_minutes)):
+            time_str = str(i) + ':' + str(j * step_minutes).zfill(2)
             time = dt.datetime.strptime(time_str, '%H:%M')
-            hours.append((time.time(), (str(i) + ':' + str(j*step_minutes).zfill(2))))
+            hours.append((time.time(), (str(i) + ':' + str(j * step_minutes).zfill(2))))
     return tuple(hours)
 
 
@@ -30,8 +30,6 @@ def check_availability(from_hour, to_hour, item):
     return True
 
 
-
-
 def is_lecturer_free(lecturer, weekday, from_hour, to_hour):
     """Checks whether lecturer can be assigned to classes."""
     weekdays = WeekDay.objects.filter(weekday=weekday, lecturer=lecturer)
@@ -42,10 +40,9 @@ def is_lecturer_free(lecturer, weekday, from_hour, to_hour):
         availability = LecturerAvailability.objects.filter(weekday=weekday)
         for item in availability:
             if from_hour >= item.from_hour and to_hour <= item.to_hour:
-                availability_count+=1
+                availability_count += 1
     if availability_count < 1:
         return False
-
 
     from_hour = (from_hour - dt.timedelta(minutes=15)).time()
     to_hour = (to_hour + dt.timedelta(minutes=15)).time()
@@ -68,6 +65,7 @@ def is_room_free(room, from_hour, to_hour, weekday):
                 return False
     return True
 
+
 def check_datetime(from_hour, to_hour, item):
     """Checks whether lecturer availability is already added or conflicted."""
     item_from_hour = datetime.datetime.strptime(str(item.from_hour), '%H:%M:%S')
@@ -85,13 +83,13 @@ def check_datetime(from_hour, to_hour, item):
     return True
 
 
-
 def is_group_free(group, from_hour, to_hour, weekday):
     schedule_items = ScheduleItem.objects.filter(group=group, weekday=weekday)
     for item in schedule_items:
         if not check_datetime(from_hour, to_hour, item):
             return False
     return True
+
 
 
 
