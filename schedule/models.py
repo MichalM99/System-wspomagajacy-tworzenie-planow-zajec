@@ -19,11 +19,13 @@ TYPE_OF_LECTURE = (
     (2, 'Wykład'),
 )
 
+
 class Year(models.Model):
     year_name = models.CharField(verbose_name='kierunek', max_length=100)
     speciality = models.CharField(verbose_name='Specjalność', max_length=50)
     year_period = models.CharField(verbose_name='Rok akademicki (yyyy/yyyy)', max_length=9,
-                                   default=str((dt.datetime.now() - dt.timedelta(days=365)).year) + '/' + str(dt.datetime.now().year))
+                                   default=str((dt.datetime.now() - dt.timedelta(days=365)).year) + '/' + str(
+                                       dt.datetime.now().year))
     type_of_semester = models.CharField(max_length=100, default='letni', verbose_name='Rodzaj semestru')
     type_of_studies = models.CharField(max_length=100, default='stacjonarne', verbose_name='Tok studiów')
 
@@ -32,7 +34,7 @@ class Year(models.Model):
         verbose_name_plural = 'kierunki'
 
     def __str__(self):
-        return self.year_name + ' ' +  self.year_period + ' ' + self.type_of_semester + ' ' + self.type_of_studies
+        return self.year_name + ' ' + self.year_period + ' ' + self.type_of_semester + ' ' + self.type_of_studies
 
 
 class Schedule(models.Model):
@@ -40,11 +42,10 @@ class Schedule(models.Model):
     lecture_unit = models.IntegerField(verbose_name='długość jednostki godzinowej (w minutach)', default=45)
     break_time = models.IntegerField(verbose_name='długość przerwy (w minutach)', default=15)
     year = models.ForeignKey(Year, verbose_name='Powiązany kierunek', on_delete=models.CASCADE, null=True)
-    #dni tygodnia w jakie mogą wystąpić zajęcia
-    #sale które zostaną objęte przy generowaniu planu
+
+    # dni tygodnia w jakie mogą wystąpić zajęcia
+    # sale które zostaną objęte przy generowaniu planu
     class Meta:
-
-
         verbose_name = 'plan'
         verbose_name_plural = 'plany'
 
@@ -53,7 +54,6 @@ class Group(models.Model):
     year = models.ForeignKey(Year, models.CASCADE)
     quantity = models.IntegerField(verbose_name='liczebność grupy')
     group_number = models.IntegerField(verbose_name='numer grupy')
-
 
     class Meta:
         verbose_name = 'grupa'
@@ -80,12 +80,8 @@ class ScheduleItem(models.Model):
     weekday = models.IntegerField(choices=DAYS_OF_WEEK, null=True, blank=True)
     lecture_units = models.IntegerField(default=2)
 
-
     class Meta:
         verbose_name = 'pozycja planu'
-        
-
-
 
 
 class Room(models.Model):
@@ -93,7 +89,6 @@ class Room(models.Model):
     type_of_lecture = models.IntegerField(choices=TYPE_OF_LECTURE, verbose_name='Rodzaj przewidzianych zajęć')
     capacity = models.IntegerField(verbose_name='pojemnosc')
     description = models.TextField(verbose_name='opis sali', max_length=255)
-
 
     class Meta:
         verbose_name = 'sala'
@@ -108,8 +103,9 @@ class RoomItem(models.Model):
     schedule_item = models.ForeignKey(ScheduleItem, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
-        return self.room.room_name + ' ' + self.schedule_item.get_weekday_display() + ' ' + str(self.schedule_item.from_hour) + \
-    ' - ' + str(self.schedule_item.to_hour)
+        return self.room.room_name + ' ' + self.schedule_item.get_weekday_display() + ' ' + str(
+            self.schedule_item.from_hour) + \
+               ' - ' + str(self.schedule_item.to_hour)
 
 
 class LecturerItem(models.Model):

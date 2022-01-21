@@ -1,0 +1,17 @@
+{% extends "dashboard/dashboard.html" %}
+{% block title %}Edycja sali{% endblock %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block screen %}
+    <div class="card">
+        <h5 class="card-header">Dodaj news</h5>
+        <div class="card-body">
+            <form action="." method="post">
+                {% csrf_token %}
+                {{ add_news_form|crispy }}
+                <input class="btn btn-info" id="registerbutton" type="submit" value="Dodaj news">
+            </form>
+        </div>
+    </div>
+{% endblock %}

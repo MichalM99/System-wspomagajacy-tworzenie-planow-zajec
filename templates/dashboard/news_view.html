@@ -1,0 +1,46 @@
+{% extends "dashboard/dashboard.html" %}
+{% block title %}News panel{% endblock %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block screen %}
+    <div class="card" style="width: 60rem;">
+        <h5 class="card-header">Informacje</h5>
+        <div class="card-body">
+            {% if user.is_staff %}
+                <a href="{% url 'add_news' %}" class="btn btn-info" id="addnewsbutton">Dodaj news</a>
+            {% endif %}
+            {% for item in news %}
+                <div class="card newscard" style="">
+                    <h5 class="card-header">{{ item.headline }}</h5>
+                    <div class="card-body">
+                        {{ item.content }}
+                        <footer class="blockquote-footer">{{ item.author }} <cite
+                                title="Source Title"> {{ item.pub_date }}</cite> {% if user.is_staff %}<a
+                                class="pagbtn btn btn-outline-info btn-sm" id="deletenewsbutton"
+                                href="{% url 'delete_news' id=item.id %}">Usuń news</a>{% endif %}
+                        </footer>
+
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="pagination">
+            <span class="step-links">
+                {% if news.has_previous %}
+                    <a class="pagbtn btn btn-info" href="?page=1">pierwsza</a>
+                    <a class="pagbtn btn btn-info" href="?page={{ news.previous_page_number }}">poprzednia</a>
+                {% endif %}
+
+                <span class="current">
+                    Strona {{ news.number }} z {{ news.paginator.num_pages }}
+                </span>
+
+                {% if news.has_next %}
+                    <a class="pagbtn btn btn-info" href="?page={{ news.next_page_number }}">następna</a>
+                    <a class="pagbtn btn btn-info" href="?page={{ news.paginator.num_pages }}">ostatnia</a>
+                {% endif %}
+            </span>
+            </div>
+        </div>
+    </div>
+{% endblock %}
