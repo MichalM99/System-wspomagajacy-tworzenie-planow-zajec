@@ -485,13 +485,24 @@ def schedule_view(request, id):
         if schedule_item.group not in groups:
             groups.append(schedule_item.group)
 
+    mapping = {
+        "Poniedziałek": 1,
+        "Wtorek": 2,
+        "Środa": 3,
+        "Czwartek": 4,
+        "Piątek": 5,
+        "Sobota": 6,
+        "Niedziela": 7
+    }
+
+
     for group in groups:
         days_group[group] = []
         items = ScheduleItem.objects.filter(group=group)
         for item in items:
             if item.get_weekday_display() not in days_group[group]:
                 days_group[group].append(item.get_weekday_display())
-        days_group[group].sort()
+        days_group[group] = sorted(days_group[group], key=lambda x: mapping[x])
 
     for schedule_item in schedule_items:
         lecturer = LecturerItem.objects.get(schedule_item=schedule_item)
