@@ -103,7 +103,7 @@ def room_busy(request):
         search_form = SearchRoom(request.GET)
         if search_form.is_valid():
             query = search_form.cleaned_data['query']
-            rooms = Room.objects.filter(room_name=query)
+            rooms = Room.objects.filter(room_name__contains=query)
             if query == '':
                 rooms = Room.objects.all()
     else:

@@ -8,7 +8,7 @@
 
 {% block screen %}
     <div class="card" style="width: 60rem;">
-        <h5 class="card-header">Lista sal</h5>
+        <h5 class="card-header">Obłożenie sal</h5>
         <div class="card-body">
             <form method="get">
                 <p>{{ search_form.query.label }}</p>
@@ -50,16 +50,17 @@
                                         {% for key, value in room_busy_dict.items %}
                                             {% if key == room %}
                                                 {% for d, c in value.items %}
-                                                {% if c %}
-                                                    <tr>
-                                                        <th colspan="3">{{ d }}</th>
-                                                    </tr>
-
+                                                    {% if c %}
+                                                        <tr>
+                                                            <td class="text-center" colspan="3">{{ d }}</td>
+                                                        </tr>
                                                         {% for item in c %}
                                                             <tr>
                                                                 <td class="font-weight-normal">{{ item.schedule_item.from_hour }}</td>
                                                                 <td class="font-weight-normal">{{ item.schedule_item.to_hour }}</td>
-                                                                <td class="font-weight-normal">{{ item.schedule_item.schedule.year }}</td>
+                                                                <td class="font-weight-normal"><a class="text-info"
+                                                                                                  href="{% url 'schedule_view' id=item.schedule_item.schedule.id %}">{{ item.schedule_item.schedule.year }}</a>
+                                                                </td>
                                                             </tr>
                                                         {% endfor %}
                                                     {% endif %}
@@ -95,4 +96,5 @@
             </span>
             </div>
         </div>
+    </div>
 {% endblock %}
