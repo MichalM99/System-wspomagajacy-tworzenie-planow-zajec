@@ -7,9 +7,9 @@ from schedule.views import xslx_toPdf
 
 def generate_xlsx_personal(lecturer, data_dict, days):
     year_name = str(lecturer).replace(' ', '_').replace('/', '_')
-    if os.path.isfile('{}_{}.xlsx'.format(lecturer.id, year_name)):
+    if os.path.isfile('schedules_pdf/{}_{}.xlsx'.format(lecturer.id, year_name)):
         return True
-    workbook = xlsxwriter.Workbook('{}_{}.xlsx'.format(lecturer.id, year_name))
+    workbook = xlsxwriter.Workbook('schedules_pdf/{}_{}.xlsx'.format(lecturer.id, year_name))
     worksheet = workbook.add_worksheet()
     headings = [
         'Zajęcia',
@@ -32,9 +32,9 @@ def generate_xlsx_personal(lecturer, data_dict, days):
         'align': 'center',
         'valign': 'vcenter', })
 
-    worksheet.set_column(0, 0, 35)
+    worksheet.set_column(0, 0, 46)
     worksheet.set_column(1, 2, 8)
-    worksheet.set_column(3, 3, 35)
+    worksheet.set_column(3, 3, 25)
     worksheet.set_column(4, 4, 8)
 
     day_format = workbook.add_format({

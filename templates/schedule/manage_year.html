@@ -19,7 +19,8 @@
             <form action="." method="post">
                 {{ form|crispy }}
                 {% csrf_token %}
-                <input class="btn btn-info" id="registerbutton" type="submit" value="Zapisz zmiany" style="margin-bottom: 0.7rem;">
+                <input class="btn btn-info" id="registerbutton" type="submit" value="Zapisz zmiany"
+                       style="margin-bottom: 0.7rem;">
             </form>
             <div class="modal fade" id="deleteYearModal" tabindex="-1" role="dialog"
                  aria-labelledby="deleteYearModalLabel" aria-hidden="true">
@@ -46,22 +47,23 @@
                     </div>
                 </div>
             </div>
-            <a class="btn btn-outline-info"  data-toggle="modal"
+            <a class="btn btn-outline-info" data-toggle="modal"
                data-target="#deleteYearModal" href="#">Usuń kierunek</a>
         </div>
     </div>
     <div class="card">
         <h5 class="card-header">Grupy powiązane z kierunkiem</h5>
         <div class="card-body">
-            <table class="table">
+            <table class="table table-striped">
                 <thead>
                 <th scope="col">Numer grupy</th>
                 <th scope="col">Liczebność</th>
                 <th scope="col">Opcje</th>
                 </thead>
+                <tbody>
                 {% for group in groups %}
 
-                    <tbody>
+
                     <tr>
                         <th scope="row">{{ group.group_number }}</th>
                         <th> {{ group.quantity }}</th>

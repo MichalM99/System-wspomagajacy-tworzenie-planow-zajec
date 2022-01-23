@@ -24,7 +24,10 @@ def dashboard_view(request):
         room = RoomItem.objects.get(schedule_item=item)
         if item.get_weekday_display() not in days:
             days.append(item.get_weekday_display())
-        list.append(str(item.lecture))
+        list.append(str(item.lecture) + ', ' + str(item.schedule.year.year_name)[:3] + '. ' + str(
+            item.schedule.year.year_period) + str(item.schedule.year.type_of_semester)[:1] + ', ' + str(item.group)[
+                                                                                                    :2] + '. ' + str(
+            item.group.group_number))
         list.append(str(item.from_hour))
         list.append(str(item.to_hour))
         list.append(str(lecturer.lecturer))
@@ -39,8 +42,6 @@ def dashboard_view(request):
         'data_set': data_set,
         'lecturer': lecturer,
     })
-
-
 
 
 def get_schedule_items_for_lecturer(lecturer):
@@ -60,6 +61,7 @@ def news_view(request):
     return render(request, 'dashboard/news_view.html', {
         'news': news,
     })
+
 
 def delete_news(request, id):
     """Deletes single group based on pk."""
@@ -84,8 +86,9 @@ def add_news(request):
         add_news_form = AddNewsForm()
     return render(request, "dashboard/add_news.html", {'add_news_form': add_news_form})
 
+
 def pdf_view_personal(request, id):
     lecturer = Profile.objects.get(user=request.user)
     lecturer_name = str(lecturer).replace(' ', '_').replace('/', '_')
-    filepath = os.path.join('{}_{}.pdf'.format(lecturer.id, lecturer_name))
+    filepath = os.path.join('schedules_pdf/{}_{}.pdf'.format(lecturer.id, lecturer_name))
     return FileResponse(open(filepath, 'rb'), content_type='application/pdf')

@@ -1,6 +1,7 @@
 import datetime as dt
 
 from django import forms
+from django.core.exceptions import ValidationError
 
 from account.models import Profile
 from schedule.models import Group, Lecture, Room, Schedule, Year
@@ -51,6 +52,22 @@ class AddYear(forms.Form):
         'class': 'form-control-sm'
     }))
 
+    def clean_year_period(self):
+        year_period = self.cleaned_data['year_period']
+        first_half = year_period[:4]
+        second_half = year_period[5:]
+        print(first_half)
+        print(second_half)
+        if not (first_half.isnumeric() and second_half.isnumeric()):
+            raise ValidationError("Zły format roku akademickiego!")
+        elif int(second_half) - int(first_half) != 1:
+            raise ValidationError("Zły format roku akademickiego!")
+        elif len(year_period) > 9 or len(year_period) < 9:
+            raise ValidationError("Zły format roku akademickiego!")
+        elif year_period[4] != '/':
+            raise ValidationError("Zły format roku akademickiego!")
+        return year_period
+
 
 class SearchYear(forms.Form):
     query = forms.CharField(label='Kierunek/rok/specjalność:', required=False)
@@ -69,6 +86,7 @@ class ManageYearForm(forms.ModelForm):
             'type_of_semester': forms.Select(choices=SEMESTER_CHOICES, attrs={'class': 'form-control-sm'}),
         }
 
+
     def __init__(self, *args, **kwargs):
         super(ManageYearForm, self).__init__(*args, **kwargs)
         self.fields['type_of_studies'].widget.attrs.update({
@@ -77,6 +95,7 @@ class ManageYearForm(forms.ModelForm):
         self.fields['type_of_semester'].widget.attrs.update({
              'class': 'form-control-sm'
         })
+
 
 
 class AddGroupForm(forms.ModelForm):
