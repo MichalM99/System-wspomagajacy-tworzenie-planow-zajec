@@ -13,7 +13,7 @@
         <div class="card-body">
             {% for x in availability %}
                 {% for y in x %}
-                    <p class="availability btn btn-outline-info">{{ y.weekday }} {{ y.from_hour }} - {{ y.to_hour }}
+                    <p id="availability" class="btn btn-outline-info">{{ y.weekday }} {{ y.from_hour }} - {{ y.to_hour }}
                         <a href="{% url 'delete_availability' id=y.weekday.id %}"><img id="binicon"
                                                                                        src="{% static 'images/delete_avail.png' %}"></a>
                     </p>

@@ -235,7 +235,7 @@ def delete_room(request, id):
     """Deletes single group based on pk."""
     query = Room.objects.get(id=id)
     query.delete()
-    return redirect(request.META['HTTP_REFERER'])
+    return redirect(manage_room)
 
 
 def edit_room(request, id):
@@ -256,7 +256,7 @@ def edit_room(request, id):
         return redirect("/schedule/manage_room/")
     else:
         form = EditRoomForm(instance=data)
-    return render(request, 'schedule/edit_room.html', {'form': form, 'data': data})
+    return render(request, 'schedule/edit_room.html', {'form': form, 'data': data, 'id': id})
 
 
 def manage_schedule(request):

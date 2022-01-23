@@ -41,31 +41,6 @@
                         <th>{{ room.description }}</th>
                         <th><a class="btn btn-info btn-sm managebtn" href="{% url 'edit_room' id=room.id %}">Zarządzaj
                             salą</a>
-                            <div class="modal fade" id="deleteRoomModal" tabindex="-1" role="dialog"
-                                 aria-labelledby="deleteRoomModalLabel" aria-hidden="true">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="deleteRoomModalLabel">Potwierdź usunięcie
-                                                sali</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p>Czy jesteś pewien, że chcesz usunąć salę?</p>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <a href="#" class="btn btn-info managebtn btn-sm" data-dismiss="modal">Powrót
-                                                do listy sal</a>
-                                            <a class="btn btn-outline-info btn-sm managebtn"
-                                               href="{% url 'delete_room' id=room.id %}">Usuń salę</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <a class="btn btn-outline-info btn-sm managebtn" data-toggle="modal"
-                               data-target="#deleteRoomModal" href="#">Usuń salę</a></th>
                     </tr>
                 {% empty %}
                     <p>Brak wyników dla podanego wyszukiwania</p>
