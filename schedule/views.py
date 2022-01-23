@@ -1,6 +1,7 @@
 import datetime
 import os
 
+
 import xlsxwriter
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
@@ -146,7 +147,7 @@ def manage_year(request, id):
     else:
         form = ManageYearForm(instance=data)
     return render(request, 'schedule/manage_year.html', {
-        "data": data, "form": form, "groups": groups
+        "data": data, "form": form, "groups": groups, 'id': id,
     })
 
 
@@ -185,7 +186,7 @@ def delete_year(request, id):
     """Deletes single group based on pk."""
     query = Year.objects.get(id=id)
     query.delete()
-    return redirect(request.META['HTTP_REFERER'])
+    return redirect(year_group_management)
 
 
 def check_existing_room(room_name):
@@ -275,7 +276,7 @@ def delete_schedule(request, pk):
     query = Schedule.objects.get(year_id=pk)
     print(query)
     query.delete()
-    return redirect(request.META['HTTP_REFERER'])
+    return redirect(year_group_management)
 
 
 def delete_schedule_item(request, id):
