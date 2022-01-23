@@ -4,14 +4,34 @@
 {% load crispy_forms_tags %}
 
 {% block screen %}
-<div class="card">
-  <h5 class="card-header">Dodaj użytkownika</h5>
-  <div class="card-body">
-      <form action="." method="post">
-          {{ user_form|crispy}}
-          {% csrf_token %}
-      <input class="btn btn-info" id="registerbutton" type="submit" value="Zarejestruj użytkownika">
-      </form>
-  </div>
-</div>
+    <div class="card">
+        <h5 class="card-header">Dodaj użytkownika</h5>
+        <div class="card-body">
+            <form action="." method="post">
+                {{ user_form|crispy }}
+                {% csrf_token %}
+                <input class="btn btn-info" id="registerbutton" name="registeruser" type="submit"
+                       value="Zarejestruj użytkownika">
+            </form>
+        </div>
+    </div>
+    <div class="card">
+        <h5 class="card-header">Dodaj użytkowników z pliku EXCEL</h5>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="id_filewithdetails">Wybierz plik (xlsx) z danymi użytkowników: </label>
+                <p class="font-weight-bold">{{ succes }}</p>
+                <p class="font-weight-bold">{{ error }}</p>
+                <p class="font-weight-bold">Kolumny:</p>
+                <p>A: imię</p>
+                <p>B: nazwisko</p>
+                <p>C: email</p>
+                <input type="file" class="form-control-file" id="id_filewithdetails" name="filewithdetails">
+                <input class="btn btn-info" id="registerbutton" name="uploadfile" type="submit" value="Zarejestruj wczytane konta">
+            </form>
+
+
+        </div>
+    </div>
 {% endblock %}
