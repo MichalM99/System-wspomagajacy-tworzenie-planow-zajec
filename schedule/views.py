@@ -565,9 +565,9 @@ def get_days_of_week(schedule_items):
 
 def generate_xlsx(year, data_dict, days_group):
     year_name = str(year).replace(' ', '_').replace('/','_')
-    if os.path.isfile('schedules_pdf/{}_{}.xlsx'.format(year.id, year_name)):
+    if os.path.isfile('static/schedules_pdf/{}_{}.xlsx'.format(year.id, year_name)):
         return True
-    workbook = xlsxwriter.Workbook('schedules_pdf/{}_{}.xlsx'.format(year.id, year_name))
+    workbook = xlsxwriter.Workbook('static/schedules_pdf/{}_{}.xlsx'.format(year.id, year_name))
     worksheet = workbook.add_worksheet()
     headings = [
         'Zajęcia',
@@ -643,17 +643,17 @@ def xslx_toPdf(year, row):
     if not jpype.isJVMStarted():
         jpype.startJVM()
     from asposecells.api import FileFormatType
-    workbook = asposecells.api.Workbook("schedules_pdf/{}_{}.xlsx".format(year.id, year_name))
+    workbook = asposecells.api.Workbook("static/schedules_pdf/{}_{}.xlsx".format(year.id, year_name))
     saveOptions = asposecells.api.PdfSaveOptions()
     saveOptions.setOnePagePerSheet(True)
-    workbook.save("schedules_pdf/{}_{}.pdf".format(year.id, year_name), saveOptions)
+    workbook.save("static/schedules_pdf/{}_{}.pdf".format(year.id, year_name), saveOptions)
 
 
 
 def pdf_view(request, id):
     year = Year.objects.get(id=id)
     year_name = str(year).replace(' ', '_').replace('/', '_')
-    filepath = os.path.join('schedules_pdf/{}_{}.pdf'.format(year.id, year_name))
+    filepath = os.path.join('static/schedules_pdf/{}_{}.pdf'.format(year.id, year_name))
     return FileResponse(open(filepath, 'rb'), content_type='application/pdf')
 
 

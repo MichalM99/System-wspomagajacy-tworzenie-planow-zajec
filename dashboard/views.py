@@ -91,7 +91,7 @@ def add_news(request):
 def pdf_view_personal(request, id):
     lecturer = Profile.objects.get(user=request.user)
     lecturer_name = str(lecturer).replace(' ', '_').replace('/', '_')
-    filepath = os.path.join('schedules_pdf/{}_{}.pdf'.format(lecturer.id, lecturer_name))
+    filepath = os.path.join('static/schedules_pdf/{}_{}.pdf'.format(lecturer.id, lecturer_name))
     return FileResponse(open(filepath, 'rb'), content_type='application/pdf')
 
 
