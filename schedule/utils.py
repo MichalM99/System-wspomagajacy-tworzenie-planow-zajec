@@ -1,8 +1,11 @@
 import datetime
 import datetime as dt
 
+
+
 from schedule.models import (LecturerAvailability, LecturerItem, Profile, Room,
                              RoomItem, ScheduleItem, WeekDay)
+
 
 
 def generate_hours(step_minutes, start_hour, end_hour):
@@ -89,7 +92,6 @@ def is_group_free(group, from_hour, to_hour, weekday):
         if not check_datetime(from_hour, to_hour, item):
             return False
     return True
-
 
 
 

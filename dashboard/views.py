@@ -1,12 +1,15 @@
 import datetime
+import os
 
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.http import FileResponse
 from django.shortcuts import redirect, render
 
 from account.models import Profile
 from dashboard.forms import AddNewsForm
 from dashboard.models import News
+from dashboard.utils import generate_xlsx_personal
 from schedule.models import LecturerItem, RoomItem, Schedule, ScheduleItem
 
 
@@ -29,12 +32,15 @@ def dashboard_view(request):
         item = {item.get_weekday_display(): list}
         data_set.append(item)
     lecturer = Profile.objects.get(user=request.user)
+    generate_xlsx_personal(lecturer, data_set, days)
     return render(request, 'dashboard/dashboard.html', {
         'schedule_items': schedule_items,
         'days': days,
         'data_set': data_set,
         'lecturer': lecturer,
     })
+
+
 
 
 def get_schedule_items_for_lecturer(lecturer):
@@ -78,3 +84,8 @@ def add_news(request):
         add_news_form = AddNewsForm()
     return render(request, "dashboard/add_news.html", {'add_news_form': add_news_form})
 
+def pdf_view_personal(request, id):
+    lecturer = Profile.objects.get(user=request.user)
+    lecturer_name = str(lecturer).replace(' ', '_').replace('/', '_')
+    filepath = os.path.join('{}_{}.pdf'.format(lecturer.id, lecturer_name))
+    return FileResponse(open(filepath, 'rb'), content_type='application/pdf')

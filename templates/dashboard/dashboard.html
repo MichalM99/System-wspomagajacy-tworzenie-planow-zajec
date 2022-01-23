@@ -110,7 +110,7 @@
                             {% endfor %}
                             </tbody>
                         </table>
-                        <a class="btn btn-info" id="registerbutton" href="#">Pobierz plan w formacie PDF</a>
+                        <a class="btn btn-info" id="registerbutton" href="{% url 'pdf_view_personal' id=lecturer.id %}">Pobierz plan w formacie PDF</a>
                     </div>
                 </div>
             {% endblock %}

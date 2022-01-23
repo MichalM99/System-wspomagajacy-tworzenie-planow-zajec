@@ -1,15 +1,16 @@
 import datetime
+import os
 
+import xlsxwriter
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import get_template, render_to_string
 from django.views.generic import View
 
 from account.models import Profile
-from dashboard.views import get_schedule_items_for_lecturer
 from schedule.forms import (AddAvailabilityForm, AddGroupForm, AddRoomForm,
                             AddRoomToScheduleForm, AddScheduleForm,
                             AddScheduleItemForm, AddYear, EditRoomForm,
@@ -473,6 +474,35 @@ def is_there_unassigned_item(year_id):
     return False
 
 
+def get_days_group(id):
+    schedule_items = ScheduleItem.objects.filter(schedule=Schedule.objects.get(id=id)).order_by('weekday', 'from_hour')
+    data_dict = {}
+    groups = []
+    days_group = {}
+    for schedule_item in schedule_items:
+        data_dict[schedule_item.group] = []
+        if schedule_item.group not in groups:
+            groups.append(schedule_item.group)
+
+    mapping = {
+        "Poniedziałek": 1,
+        "Wtorek": 2,
+        "Środa": 3,
+        "Czwartek": 4,
+        "Piątek": 5,
+        "Sobota": 6,
+        "Niedziela": 7
+    }
+
+    for group in groups:
+        days_group[group] = []
+        items = ScheduleItem.objects.filter(group=group)
+        for item in items:
+            if item.get_weekday_display() not in days_group[group]:
+                days_group[group].append(item.get_weekday_display())
+        days_group[group] = sorted(days_group[group], key=lambda x: mapping[x])
+    return days_group
+
 def schedule_view(request, id):
     schedule_items = ScheduleItem.objects.filter(schedule=Schedule.objects.get(id=id)).order_by('weekday', 'from_hour')
     year = Schedule.objects.get(id=id).year
@@ -516,6 +546,7 @@ def schedule_view(request, id):
         item = {schedule_item.get_weekday_display(): list}
         data_set.append(item)
         data_dict[schedule_item.group].append(item)
+    generate_xlsx(year, data_dict, days_group)
     return render(request, 'schedule/schedule_view.html', {
         'data_set': data_set,
         'data_dict': data_dict,
@@ -532,8 +563,99 @@ def get_days_of_week(schedule_items):
     return days
 
 
+def generate_xlsx(year, data_dict, days_group):
+    year_name = str(year).replace(' ', '_').replace('/','_')
+    if os.path.isfile('{}_{}.xlsx'.format(year.id, year_name)):
+        print("istnieje")
+        return True
+    workbook = xlsxwriter.Workbook('{}_{}.xlsx'.format(year.id, year_name))
+    worksheet = workbook.add_worksheet()
+    headings = [
+        'Zajęcia',
+        'Od:',
+        'Do:',
+        'Prowadzący',
+        'Sala'
+    ]
+    #Zajęcia, Od, Do, Prowadzący, Sala
+
+    merge_format = workbook.add_format({
+        'bold': 1,
+        'border': 1,
+        'align': 'center',
+        'valign': 'vcenter',
+        'fg_color': 'white'})
+
+    main_heading = workbook.add_format({
+        'bold': 1,
+        'align': 'center',
+        'valign': 'vcenter',})
+
+    worksheet.set_column(0, 0, 35)
+    worksheet.set_column(1, 2, 8)
+    worksheet.set_column(3, 3, 35)
+    worksheet.set_column(4, 4, 8)
+
+    day_format = workbook.add_format({
+        'bold': 1,
+        'border': 1,
+        'align': 'center',
+        'valign': 'vcenter',
+        'color': 'white',
+        'fg_color': 'black'})
+
+    headings_format = workbook.add_format({
+        'bold': 1,
+        'border': 1,
+        'align': 'center',
+        'valign': 'vcenter',})
+
+    classes_format = workbook.add_format({
+        'bold': 1,
+        'border': 1,})
+
+    worksheet.merge_range('A{}:E{}'.format(1, 1), 'Plan: {}'.format(year_name), main_heading)
+    row = 2
+    for gr, d in days_group.items():
+        worksheet.merge_range('A{}:E{}'.format(row, row), '{}'.format(gr), merge_format)
+        row += 1
+        for col in range(0, 5):
+            worksheet.write(row-1, col, headings[col], headings_format)
+        for ds in d:
+            row += 1
+            worksheet.merge_range('A{}:E{}'.format(row, row), '{}'.format(ds), day_format)
+            for item, val in data_dict.items():
+                if item == gr:
+                    for x in val:
+                        for dy, z in x.items():
+                            if ds == dy:
+                                row += 1
+                                for col in range(0, 5):
+                                    worksheet.write(row - 1, col, z[col], classes_format)
+
+        row += 3
+    workbook.close()
+    xslx_toPdf(year, row)
+
+def xslx_toPdf(year, row):
+    year_name = str(year).replace(' ', '_').replace('/','_')
+    import asposecells
+    import jpype
+    if not jpype.isJVMStarted():
+        jpype.startJVM()
+    from asposecells.api import FileFormatType
+    workbook = asposecells.api.Workbook("{}_{}.xlsx".format(year.id, year_name))
+    saveOptions = asposecells.api.PdfSaveOptions()
+    saveOptions.setOnePagePerSheet(True)
+    workbook.save("{}_{}.pdf".format(year.id, year_name), saveOptions)
 
 
+
+def pdf_view(request, id):
+    year = Year.objects.get(id=id)
+    year_name = str(year).replace(' ', '_').replace('/', '_')
+    filepath = os.path.join('{}_{}.pdf'.format(year.id, year_name))
+    return FileResponse(open(filepath, 'rb'), content_type='application/pdf')
 
 
 
