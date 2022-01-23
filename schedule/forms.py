@@ -56,8 +56,6 @@ class AddYear(forms.Form):
         year_period = self.cleaned_data['year_period']
         first_half = year_period[:4]
         second_half = year_period[5:]
-        print(first_half)
-        print(second_half)
         if not (first_half.isnumeric() and second_half.isnumeric()):
             raise ValidationError("Zły format roku akademickiego!")
         elif int(second_half) - int(first_half) != 1:

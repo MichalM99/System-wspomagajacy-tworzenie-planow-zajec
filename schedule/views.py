@@ -446,7 +446,6 @@ def generate_schedule(year_id, schedule_data):
             start_time = datetime.datetime(1900, 1, 1, 8, 0, 0)
 
     if is_there_unassigned_item(year_id):
-        print('nie mozna utworzyć planu')
         Schedule.objects.filter(id=schedule.id).delete()
         return False  # Returns False if plan couldn't be generated
     return True  # Returns True if plan could be generated
@@ -567,7 +566,6 @@ def get_days_of_week(schedule_items):
 def generate_xlsx(year, data_dict, days_group):
     year_name = str(year).replace(' ', '_').replace('/','_')
     if os.path.isfile('schedules_pdf/{}_{}.xlsx'.format(year.id, year_name)):
-        print("istnieje")
         return True
     workbook = xlsxwriter.Workbook('schedules_pdf/{}_{}.xlsx'.format(year.id, year_name))
     worksheet = workbook.add_worksheet()

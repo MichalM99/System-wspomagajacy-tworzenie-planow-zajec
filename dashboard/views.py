@@ -111,7 +111,6 @@ def room_busy(request):
 
     days = []
     room_busy_dict = {}
-    print(rooms)
     for room in rooms:
         room_items = RoomItem.objects.filter(room=room).order_by('schedule_item__from_hour')
         room_busy_dict[room] = {}
