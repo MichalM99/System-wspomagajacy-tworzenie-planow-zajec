@@ -1,0 +1,98 @@
+{% extends "dashboard/dashboard.html" %}
+{% block title %}Obłożenie sal{% endblock %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block css %}
+    <link rel='stylesheet' href="{% static 'css/schedule/year_group_management.css' %}" type="text/css"/>
+{% endblock %}
+
+{% block screen %}
+    <div class="card" style="width: 60rem;">
+        <h5 class="card-header">Lista sal</h5>
+        <div class="card-body">
+            <form method="get">
+                <p>{{ search_form.query.label }}</p>
+                <p>{{ search_form.query }}<input id="searchbutton" class="btn btn-info" type="submit" value="Wyszukaj">
+                </p>
+            </form>
+            <table class="table">
+                <thead>
+                <th scope="col">Nazwa/numer</th>
+                <th scope="col">Rodzaj sali</th>
+                <th scope="col">Pojemność</th>
+                <th scope="col">Opis</th>
+                </thead>
+                <tbody>
+                {% for room in rooms %}
+                    <tr>
+                        <th scope="row">{{ room.room_name }}</th>
+                        <th> {{ room.get_type_of_lecture_display }}</th>
+                        <th> {{ room.capacity }}</th>
+                        <th>{{ room.description }}</th>
+                    </tr>
+                    <tr>
+                        <th colspan="4">
+                            <p>
+                                <button type="button" class="btn btn-info btn-sm" data-toggle="collapse"
+                                        data-target="#collapse-{{ room.id }}">Sprawdź obłożenie
+                                </button>
+                            </p>
+                            <div class="collapse" id="collapse-{{ room.id }}">
+                                <div class="card card-body">
+                                    <table class="table table-striped table-sm">
+                                        <thead>
+                                        <th scope="col">Od:</th>
+                                        <th scope="col">Do:</th>
+                                        <th scope="col">Kierunek:</th>
+                                        </thead>
+                                        <tbody>
+
+                                        {% for key, value in room_busy_dict.items %}
+                                            {% if key == room %}
+                                                {% for d, c in value.items %}
+                                                {% if c %}
+                                                    <tr>
+                                                        <th colspan="3">{{ d }}</th>
+                                                    </tr>
+
+                                                        {% for item in c %}
+                                                            <tr>
+                                                                <td class="font-weight-normal">{{ item.schedule_item.from_hour }}</td>
+                                                                <td class="font-weight-normal">{{ item.schedule_item.to_hour }}</td>
+                                                                <td class="font-weight-normal">{{ item.schedule_item.schedule.year }}</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </th>
+                    </tr>
+                {% empty %}
+                    <p>Brak wyników dla podanego wyszukiwania</p>
+                {% endfor %}
+                </tbody>
+            </table>
+            <div class="pagination">
+            <span class="step-links">
+                {% if rooms.has_previous %}
+                    <a class="pagbtn btn btn-info" href="?page=1">pierwsza</a>
+                    <a class="pagbtn btn btn-info" href="?page={{ rooms.previous_page_number }}">poprzednia</a>
+                {% endif %}
+
+                <span class="current">
+                    Strona {{ rooms.number }} z {{ rooms.paginator.num_pages }}
+                </span>
+
+                {% if rooms.has_next %}
+                    <a class="pagbtn btn btn-info" href="?page={{ rooms.next_page_number }}">następna</a>
+                    <a class="pagbtn btn btn-info" href="?page={{ rooms.paginator.num_pages }}">ostatnia</a>
+                {% endif %}
+            </span>
+            </div>
+        </div>
+{% endblock %}

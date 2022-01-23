@@ -10,7 +10,8 @@ from account.models import Profile
 from dashboard.forms import AddNewsForm
 from dashboard.models import News
 from dashboard.utils import generate_xlsx_personal
-from schedule.models import LecturerItem, RoomItem, Schedule, ScheduleItem
+from schedule.forms import SearchRoom
+from schedule.models import LecturerItem, RoomItem, Schedule, ScheduleItem, Room
 
 
 @login_required
@@ -92,3 +93,44 @@ def pdf_view_personal(request, id):
     lecturer_name = str(lecturer).replace(' ', '_').replace('/', '_')
     filepath = os.path.join('schedules_pdf/{}_{}.pdf'.format(lecturer.id, lecturer_name))
     return FileResponse(open(filepath, 'rb'), content_type='application/pdf')
+
+
+def room_busy(request):
+    search_form = SearchRoom()
+    query = None
+    rooms = []
+    if 'query' in request.GET:
+        search_form = SearchRoom(request.GET)
+        if search_form.is_valid():
+            query = search_form.cleaned_data['query']
+            rooms = Room.objects.filter(room_name=query)
+            if query == '':
+                rooms = Room.objects.all()
+    else:
+        rooms = Room.objects.all()
+
+    days = []
+    room_busy_dict = {}
+    print(rooms)
+    for room in rooms:
+        room_items = RoomItem.objects.filter(room=room).order_by('schedule_item__from_hour')
+        room_busy_dict[room] = {}
+        for room_item in room_items:
+            if room_item.schedule_item.get_weekday_display() not in days:
+                days.append(room_item.schedule_item.get_weekday_display())
+        for day in days:
+            room_busy_dict[room][day] = []
+        for room_item in room_items:
+            room_busy_dict[room][room_item.schedule_item.get_weekday_display()].append(room_item)
+
+
+
+
+
+    paginator = Paginator(rooms, 10)
+    page_number = request.GET.get('page')
+    rooms = paginator.get_page(page_number)
+    return render(request, "dashboard/room_busy.html", {
+        'rooms': rooms, 'query': query, 'search_form': search_form, 'room_busy_dict': room_busy_dict, 'days': days,
+    })
+
