@@ -19,7 +19,7 @@
             <form action="." method="post">
                 {{ form|crispy }}
                 {% csrf_token %}
-                <input class="btn btn-info" id="registerbutton" type="submit" value="Zapisz zmiany"
+                <input class="btn btn-info" id="registerbutton" name="save_changes" type="submit" value="Zapisz zmiany"
                        style="margin-bottom: 0.7rem;">
             </form>
             <div class="modal fade" id="deleteYearModal" tabindex="-1" role="dialog"
@@ -102,7 +102,7 @@
                 {% endfor %}
                 </tbody>
             </table>
-            <a href="{% url "add_group" id=data.id %}" class="btn btn-info" id="registerbutton" type="submit">Dodaj
+            <a href="{% url "add_group" id=data.id %}" class="btn btn-info"  id="registerbutton" type="submit">Dodaj
                 grupę</a>
         </div>
     </div>
@@ -135,8 +135,9 @@
         <h5 class="card-header">Przypisz zajęcia</h5>
         <div class="card-body">
             <form action="." method="post">
+                {{ add_lecture_form|crispy }}
                 {% csrf_token %}
-                <input class="btn btn-info" id="registerbutton" type="submit" value="Dodaj zajęcia">
+                <input class="btn btn-info" id="registerbutton" type="submit" name="add_lecture" value="Dodaj zajęcia">
             </form>
         </div>
     </div>

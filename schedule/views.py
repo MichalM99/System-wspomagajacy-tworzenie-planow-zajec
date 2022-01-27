@@ -15,7 +15,7 @@ from account.models import Profile
 from schedule.forms import (AddAvailabilityForm, AddGroupForm, AddRoomForm,
                             AddRoomToScheduleForm, AddScheduleForm,
                             AddScheduleItemForm, AddYear, EditRoomForm,
-                            ManageYearForm, SearchRoom, SearchYear)
+                            ManageYearForm, SearchRoom, SearchYear, AddLectureForm)
 from schedule.models import (Group, LecturerAvailability, LecturerItem, Room,
                              RoomItem, Schedule, ScheduleItem, WeekDay, Year, Lecture)
 from schedule.utils import (check_availability, check_datetime, is_group_free,
@@ -141,15 +141,29 @@ def manage_year(request, id):
     lectures = Lecture.objects.filter(year_id=id).order_by('lecture_name')
     data = get_object_or_404(Year, pk=id)
     if request.method == "POST":
-        form = ManageYearForm(instance=data, data=request.POST)
-        if form.is_valid():
-            form.save()
-        return redirect(year_group_management)
+        if 'save_changes' in request.POST:
+            form = ManageYearForm(instance=data, data=request.POST)
+            if form.is_valid():
+                form.save()
+            return redirect(year_group_management)
+        elif 'add_lecture' in request.POST:
+            form = ManageYearForm(instance=data)
+            add_lecture_form = AddLectureForm()
+            if add_lecture_form.is_valid():
+                print("abc")
+                cd = add_lecture_form.cleaned_data
+                Lecture.objects.create(year_id=id, lecture_name=cd['lecture_name'], type_of_lecture=cd['type_of_lecture'])
+                lectures = Lecture.objects.filter(year_id=id).order_by('lecture_name')
+            return render(request, 'schedule/manage_year.html', {
+                "data": data, "form": form, "groups": groups, 'id': id,
+                "lectures": lectures, 'add_lecture_form': add_lecture_form,
+            })
     else:
         form = ManageYearForm(instance=data)
+        add_lecture_form = AddLectureForm()
     return render(request, 'schedule/manage_year.html', {
         "data": data, "form": form, "groups": groups, 'id': id,
-        "lectures": lectures,
+        "lectures": lectures, 'add_lecture_form': add_lecture_form,
     })
 
 
