@@ -68,6 +68,7 @@ class Group(models.Model):
 class Lecture(models.Model):
     lecture_name = models.CharField(verbose_name='nazwa zajęć', max_length=100)
     type_of_lecture = models.IntegerField(choices=TYPE_OF_LECTURE, verbose_name='Rodzaj zajęć')
+    year = models.ForeignKey(Year, models.CASCADE, null=True)
 
     def __str__(self):
         return self.lecture_name + ' (' + str(self.get_type_of_lecture_display()[:2]) + '.)'

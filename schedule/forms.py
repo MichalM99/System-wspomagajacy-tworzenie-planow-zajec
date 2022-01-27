@@ -17,6 +17,7 @@ DAYS_OF_WEEK = (
     (6, 'Niedziela'),
 )
 
+
 class AddAvailabilityForm(forms.Form):
     weekday = forms.IntegerField(widget=forms.Select(choices=DAYS_OF_WEEK, attrs={
         'class': 'form-control-sm'
@@ -84,16 +85,14 @@ class ManageYearForm(forms.ModelForm):
             'type_of_semester': forms.Select(choices=SEMESTER_CHOICES, attrs={'class': 'form-control-sm'}),
         }
 
-
     def __init__(self, *args, **kwargs):
         super(ManageYearForm, self).__init__(*args, **kwargs)
         self.fields['type_of_studies'].widget.attrs.update({
             'class': 'form-control-sm'
         })
         self.fields['type_of_semester'].widget.attrs.update({
-             'class': 'form-control-sm'
+            'class': 'form-control-sm'
         })
-
 
 
 class AddGroupForm(forms.ModelForm):
@@ -133,11 +132,11 @@ class AddScheduleForm(forms.Form):
 
 class AddScheduleItemForm(forms.Form):
     group = forms.ModelChoiceField(queryset=Group.objects.all(), label='Grupa',
-                                  widget=forms.Select(attrs={'class': 'form-control-sm'}))
+                                   widget=forms.Select(attrs={'class': 'form-control-sm'}))
     lecture = forms.ModelChoiceField(queryset=Lecture.objects.all(), label='Zajęcia',
-                                  widget=forms.Select(attrs={'class': 'form-control-sm'}))
+                                     widget=forms.Select(attrs={'class': 'form-control-sm'}))
     lecturer = forms.ModelChoiceField(queryset=Profile.objects.all(), label='Prowadzący',
-                                  widget=forms.Select(attrs={'class': 'form-control-sm'}))
+                                      widget=forms.Select(attrs={'class': 'form-control-sm'}))
     lecture_unit = forms.IntegerField(label='Liczba jednostek godzinowych jednorazowo', max_value=10)
 
     def __init__(self, *args, **kwargs):
@@ -156,3 +155,17 @@ class AddRoomToScheduleForm(forms.Form):
         self.fields['room'].widget.attrs.update({
             'class': 'form-control-sm'
         })
+
+
+TYPE_OF_LECTURE = (
+    (0, 'Laboratorium'),
+    (1, 'Ćwiczenia'),
+    (2, 'Wykład'),
+)
+
+
+class AddLectureForm(forms.Form):
+    lecture_name = forms.CharField(label='Nazwa zajęć', max_length=100)
+    type_of_lecture = forms.IntegerField(label='Rodzaj zajęć', widget=forms.Select(choices=TYPE_OF_LECTURE, attrs={
+        'class': 'form-control-sm'
+    }))

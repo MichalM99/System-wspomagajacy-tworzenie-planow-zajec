@@ -17,7 +17,7 @@ from schedule.forms import (AddAvailabilityForm, AddGroupForm, AddRoomForm,
                             AddScheduleItemForm, AddYear, EditRoomForm,
                             ManageYearForm, SearchRoom, SearchYear)
 from schedule.models import (Group, LecturerAvailability, LecturerItem, Room,
-                             RoomItem, Schedule, ScheduleItem, WeekDay, Year)
+                             RoomItem, Schedule, ScheduleItem, WeekDay, Year, Lecture)
 from schedule.utils import (check_availability, check_datetime, is_group_free,
                             is_lecturer_free, is_room_free)
 
@@ -138,6 +138,7 @@ def add_year(request):
 def manage_year(request, id):
     """Basically DetailView for Year model."""
     groups = Group.objects.filter(year_id=id).order_by('group_number')
+    lectures = Lecture.objects.filter(year_id=id).order_by('lecture_name')
     data = get_object_or_404(Year, pk=id)
     if request.method == "POST":
         form = ManageYearForm(instance=data, data=request.POST)
@@ -148,6 +149,7 @@ def manage_year(request, id):
         form = ManageYearForm(instance=data)
     return render(request, 'schedule/manage_year.html', {
         "data": data, "form": form, "groups": groups, 'id': id,
+        "lectures": lectures,
     })
 
 

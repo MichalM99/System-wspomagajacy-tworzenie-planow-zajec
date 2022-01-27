@@ -13,7 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
             integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
             crossorigin="anonymous"></script>
-    <div class="card">
+    <div class="card" style="width: 60rem;">
         <h5 class="card-header">Zarządzaj kierunkiem</h5>
         <div class="card-body">
             <form action="." method="post">
@@ -51,7 +51,7 @@
                data-target="#deleteYearModal" href="#">Usuń kierunek</a>
         </div>
     </div>
-    <div class="card">
+    <div class="card" style="width: 60rem;">
         <h5 class="card-header">Grupy powiązane z kierunkiem</h5>
         <div class="card-body">
             <table class="table table-striped">
@@ -107,9 +107,39 @@
         </div>
     </div>
 
+    <div class="card" style="width: 60rem;">
+        <h5 class="card-header">Zajęcia przypisane do kierunku</h5>
+        <div class="card-body">
+            <table class="table table-striped table-sm">
+                <thead>
+                <th scope="col">Nazwa zajęć</th>
+                <th scope="col">Rodzaj zajęć</th>
+                <th scope="col">Opcje</th>
+                </thead>
+                <tbody>
+                {% for lecture in lectures %}
+                    <th scope="row">{{ lecture.lecture_name }}</th>
+                    <th> {{ lecture.get_type_of_lecture_display }}</th>
+                    <th><a href=""
+                           class="btn btn-outline-info btn-sm" type="submit">Usuń
+                        zajęcia</a></th>
+                {% empty %}
+                    <p>Brak wyników dla podanego wyszukiwania</p>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-
-    <!-- Modal -->
+    <div class="card" style="width: 60rem;">
+        <h5 class="card-header">Przypisz zajęcia</h5>
+        <div class="card-body">
+            <form action="." method="post">
+                {% csrf_token %}
+                <input class="btn btn-info" id="registerbutton" type="submit" value="Dodaj zajęcia">
+            </form>
+        </div>
+    </div>
 
 
 {% endblock %}
