@@ -67,7 +67,7 @@
             <a class="btn btn-info" id="registerbutton"
                href="{% url 'pdf_view' id=year.id %}">Pobierz plan w formacie
                 PDF</a>
-            <a class="btn btn-outline-info" id="registerbutton" href="{% url "external_schedule_view" id=schedule_id %}">Udostępnij zewnętrzny link</a>
+            <a class="btn btn-outline-info" id="registerbutton" href="{% url "external_schedule_view" id=schedule_id %}" target="_blank">Udostępnij zewnętrzny link</a>
             <div class="modal fade" id="deleteScheduleModal" tabindex="-1" role="dialog"
                  aria-labelledby="deleteScheduleModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
