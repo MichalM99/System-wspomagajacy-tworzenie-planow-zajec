@@ -32,11 +32,11 @@
             </li>
             <li class="header">Zalogowany jako: <span
                     id="loggedas">{{ request.user.first_name }} {{ request.user.last_name }}</span></li>
-            <li>
-                <a href="#">
-                    <i class="fa fa-users" aria-hidden="true"></i> Wiadomości (do zrobienia)
-                </a>
-            </li>
+{#            <li>#}
+{#                <a href="#">#}
+{#                    <i class="fa fa-users" aria-hidden="true"></i> Wiadomości (do zrobienia)#}
+{#                </a>#}
+{#            </li>#}
             <li>
                 <a href="{% url "account_details" %}">
                     <i class="fa fa-users" aria-hidden="true"></i> Ustawienia konta

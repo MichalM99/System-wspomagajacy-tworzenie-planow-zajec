@@ -19,7 +19,9 @@ urlpatterns = [
     path('manage_schedule/edit_schedule/<int:id>/', views.edit_schedule, name='edit_schedule'),
     path('manage_schedule/delete/<int:pk>/', views.delete_schedule, name='delete_schedule'),
     path('manage_schedule/delete_schedule_item/<int:id>/', views.delete_schedule_item, name='delete_schedule_item'),
+    path('manage_year/<int:pk>/delete_lecture/<int:id>/', views.delete_lecture, name='delete_lecture'),
     path('schedule_view/<int:id>/', views.schedule_view, name='schedule_view'),
-    path('pdf_view/<int:id>/', views.pdf_view, name='pdf_view')
+    path('pdf_view/<int:id>/', views.pdf_view, name='pdf_view'),
+    path('external_schedule_view/<int:id>/', views.external_schedule_view, name='external_schedule_view'),
 ]
 

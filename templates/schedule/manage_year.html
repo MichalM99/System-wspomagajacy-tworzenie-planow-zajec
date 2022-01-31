@@ -118,11 +118,12 @@
                 </thead>
                 <tbody>
                 {% for lecture in lectures %}
+                    <tr>
                     <th scope="row">{{ lecture.lecture_name }}</th>
-                    <th> {{ lecture.get_type_of_lecture_display }}</th>
-                    <th><a href=""
+                    <th> {{ lecture.get_type_of_lecture_display }} </th>
+                    <th><a href="{% url "delete_lecture" id=lecture.id pk=id %}"
                            class="btn btn-outline-info btn-sm" type="submit">Usuń
-                        zajęcia</a></th>
+                        zajęcia</a></th></tr>
                 {% empty %}
                     <p>Brak wyników dla podanego wyszukiwania</p>
                 {% endfor %}

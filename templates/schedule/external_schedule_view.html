@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+    <link rel='stylesheet' href="{% static 'css/base.css' %}" type="text/css"/>
+    <link rel='stylesheet' href="{% static 'css/schedule/external_schedule_view.css' %}" type="text/css"/>
+</head>
+
+<body>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+<script>
+    $(function () {
+  $('[data-toggle="popover"]').popover()
+})
+</script>
+<div class="card" style="width: 60rem;">
+    <h5 class="card-header">Widok planu: {{ year }}</h5>
+    <div class="card-body">
+        <div class="schedule-container">
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                {% for gr, d in days_group.items %}
+                    <li class="nav-item">
+                        <a class="nav-link" id="{{ gr }}-tab" data-toggle="tab" href="#{{ gr }}" role="tab"
+                           aria-controls="{{ gr }}"
+                           aria-selected="true">{{ gr }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <div class="tab-content" id="myTabContent">
+                {% for gr, d in days_group.items %}
+                    <div class="tab-pane fade" id="{{ gr }}" role="tabpanel" aria-labelledby="{{ gr }}-tab">
+                        <table class="table table-sm table-bordered table-striped schedule-tab">
+                            <thead>
+                            <th class="" scope="col">Zajęcia:</th>
+                            <th class="" scope="col">Od:</th>
+                            <th class="" scope="col">Do:</th>
+                            <th class="" scope="col">Prowadzący:</th>
+                            <th class="" scope="col">Sala:</th>
+                            </thead>
+                            <tbody>
+                            {% for ds in d %}
+                                <th class="text-center" colspan="5" scope="row">{{ ds }}</th>
+                                {% for item, val in data_dict.items %}
+                                    {% if item == gr %}
+                                        {% for x in val %}
+                                            {% for dy, z in x.items %}
+                                                {% if ds == dy %}
+                                                    <tr>
+                                                        {% for data in z %}
+                                                            <td>{{ data }}</td>
+                                                        {% endfor %}
+                                                    </tr>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <a class="btn btn-info" id="registerbutton"
+           href="{% url 'pdf_view' id=year.id %}">Pobierz plan w formacie
+            PDF</a>
+        <button type="button" class="btn btn-outline-info clipboard" data-toggle="popover" title="Sukces"
+                data-content="Link został pomyślnie skopiowany">Skopiuj link
+        </button>
+{#        <p id="succes_copy" style="margin-top: 1rem; margin-bottom: 0rem;"></p>#}
+
+    </div>
+</div>
+{#<script>#}
+{#    var $temp = $("<input>");#}
+{#    var $url = $(location).attr('href');#}
+{##}
+{#    $('.clipboard').on('click', function () {#}
+{#        $("body").append($temp);#}
+{#        $temp.val($url).select();#}
+{#        document.execCommand("copy");#}
+{#        $temp.remove();#}
+{#        $("#succes_copy").text("Link skopiowany do schowka!");#}
+{#    })#}
+{#</script>#}
+</body>
+
+</html>

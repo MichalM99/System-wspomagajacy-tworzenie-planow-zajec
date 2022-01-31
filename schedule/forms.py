@@ -145,6 +145,7 @@ class AddScheduleItemForm(forms.Form):
 
         if year_id:
             self.fields['group'].queryset = Group.objects.filter(year_id=year_id).order_by('group_number')
+            self.fields['lecture'].queryset = Lecture.objects.filter(year_id=year_id).order_by('lecture_name')
 
 
 class AddRoomToScheduleForm(forms.Form):

@@ -1,7 +1,6 @@
 import datetime
 import os
 
-
 import xlsxwriter
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
@@ -148,11 +147,13 @@ def manage_year(request, id):
             return redirect(year_group_management)
         elif 'add_lecture' in request.POST:
             form = ManageYearForm(instance=data)
-            add_lecture_form = AddLectureForm()
+            add_lecture_form = AddLectureForm(request.POST)
+            print(add_lecture_form.is_valid())
             if add_lecture_form.is_valid():
                 print("abc")
                 cd = add_lecture_form.cleaned_data
-                Lecture.objects.create(year_id=id, lecture_name=cd['lecture_name'], type_of_lecture=cd['type_of_lecture'])
+                Lecture.objects.create(year_id=id, lecture_name=cd['lecture_name'],
+                                       type_of_lecture=cd['type_of_lecture'])
                 lectures = Lecture.objects.filter(year_id=id).order_by('lecture_name')
             return render(request, 'schedule/manage_year.html', {
                 "data": data, "form": form, "groups": groups, 'id': id,
@@ -519,9 +520,11 @@ def get_days_group(id):
         days_group[group] = sorted(days_group[group], key=lambda x: mapping[x])
     return days_group
 
+
 def schedule_view(request, id):
     schedule_items = ScheduleItem.objects.filter(schedule=Schedule.objects.get(id=id)).order_by('weekday', 'from_hour')
     year = Schedule.objects.get(id=id).year
+    schedule_id = Schedule.objects.get(id=id).id
     data_set = []
     data_dict = {}
     groups = []
@@ -540,7 +543,6 @@ def schedule_view(request, id):
         "Sobota": 6,
         "Niedziela": 7
     }
-
 
     for group in groups:
         days_group[group] = []
@@ -568,6 +570,7 @@ def schedule_view(request, id):
         'data_dict': data_dict,
         'days_group': days_group,
         'year': year,
+        'schedule_id': schedule_id,
     })
 
 
@@ -580,7 +583,7 @@ def get_days_of_week(schedule_items):
 
 
 def generate_xlsx(year, data_dict, days_group):
-    year_name = str(year).replace(' ', '_').replace('/','_')
+    year_name = str(year).replace(' ', '_').replace('/', '_')
     if os.path.isfile('static/schedules_pdf/{}_{}.xlsx'.format(year.id, year_name)):
         return True
     workbook = xlsxwriter.Workbook('static/schedules_pdf/{}_{}.xlsx'.format(year.id, year_name))
@@ -592,7 +595,7 @@ def generate_xlsx(year, data_dict, days_group):
         'Prowadzący',
         'Sala'
     ]
-    #Zajęcia, Od, Do, Prowadzący, Sala
+    # Zajęcia, Od, Do, Prowadzący, Sala
 
     merge_format = workbook.add_format({
         'bold': 1,
@@ -604,7 +607,7 @@ def generate_xlsx(year, data_dict, days_group):
     main_heading = workbook.add_format({
         'bold': 1,
         'align': 'center',
-        'valign': 'vcenter',})
+        'valign': 'vcenter', })
 
     worksheet.set_column(0, 0, 35)
     worksheet.set_column(1, 2, 8)
@@ -623,11 +626,11 @@ def generate_xlsx(year, data_dict, days_group):
         'bold': 1,
         'border': 1,
         'align': 'center',
-        'valign': 'vcenter',})
+        'valign': 'vcenter', })
 
     classes_format = workbook.add_format({
         'bold': 1,
-        'border': 1,})
+        'border': 1, })
 
     worksheet.merge_range('A{}:E{}'.format(1, 1), 'Plan: {}'.format(year_name), main_heading)
     row = 2
@@ -635,7 +638,7 @@ def generate_xlsx(year, data_dict, days_group):
         worksheet.merge_range('A{}:E{}'.format(row, row), '{}'.format(gr), merge_format)
         row += 1
         for col in range(0, 5):
-            worksheet.write(row-1, col, headings[col], headings_format)
+            worksheet.write(row - 1, col, headings[col], headings_format)
         for ds in d:
             row += 1
             worksheet.merge_range('A{}:E{}'.format(row, row), '{}'.format(ds), day_format)
@@ -652,8 +655,9 @@ def generate_xlsx(year, data_dict, days_group):
     workbook.close()
     xslx_toPdf(year, row)
 
+
 def xslx_toPdf(year, row):
-    year_name = str(year).replace(' ', '_').replace('/','_')
+    year_name = str(year).replace(' ', '_').replace('/', '_')
     import asposecells
     import jpype
     if not jpype.isJVMStarted():
@@ -665,7 +669,6 @@ def xslx_toPdf(year, row):
     workbook.save("static/schedules_pdf/{}_{}.pdf".format(year.id, year_name), saveOptions)
 
 
-
 def pdf_view(request, id):
     year = Year.objects.get(id=id)
     year_name = str(year).replace(' ', '_').replace('/', '_')
@@ -673,6 +676,60 @@ def pdf_view(request, id):
     return FileResponse(open(filepath, 'rb'), content_type='application/pdf')
 
 
+def delete_lecture(request, id, pk):
+    """Deletes single group based on pk."""
+    query = Lecture.objects.get(id=id)
+    query.delete()
+    return redirect(request.META['HTTP_REFERER'])
 
 
+def external_schedule_view(request, id):
+    schedule_items = ScheduleItem.objects.filter(schedule=Schedule.objects.get(id=id)).order_by('weekday', 'from_hour')
+    year = Schedule.objects.get(id=id).year
+    data_set = []
+    data_dict = {}
+    groups = []
+    days_group = {}
+    for schedule_item in schedule_items:
+        data_dict[schedule_item.group] = []
+        if schedule_item.group not in groups:
+            groups.append(schedule_item.group)
 
+    mapping = {
+        "Poniedziałek": 1,
+        "Wtorek": 2,
+        "Środa": 3,
+        "Czwartek": 4,
+        "Piątek": 5,
+        "Sobota": 6,
+        "Niedziela": 7
+    }
+
+    for group in groups:
+        days_group[group] = []
+        items = ScheduleItem.objects.filter(group=group)
+        for item in items:
+            if item.get_weekday_display() not in days_group[group]:
+                days_group[group].append(item.get_weekday_display())
+        days_group[group] = sorted(days_group[group], key=lambda x: mapping[x])
+
+    for schedule_item in schedule_items:
+        lecturer = LecturerItem.objects.get(schedule_item=schedule_item)
+        room = RoomItem.objects.get(schedule_item=schedule_item)
+        list = []
+        list.append(str(schedule_item.lecture))
+        list.append(str(schedule_item.from_hour))
+        list.append(str(schedule_item.to_hour))
+        list.append(str(lecturer.lecturer))
+        list.append(str(room.room))
+        item = {schedule_item.get_weekday_display(): list}
+        data_set.append(item)
+        data_dict[schedule_item.group].append(item)
+    print(data_dict)
+    print(data_set)
+    return render(request, 'schedule/external_schedule_view.html', {
+        'data_set': data_set,
+        'data_dict': data_dict,
+        'days_group': days_group,
+        'year': year,
+    })
