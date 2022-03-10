@@ -14,11 +14,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='roomitem',
             name='schedule_item',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='schedule.scheduleitem'),
+            field=models.ForeignKey(blank=True, null=True,
+                                    on_delete=django.db.models.deletion.CASCADE, to='schedule.scheduleitem'),
         ),
         migrations.AlterField(
             model_name='schedule',
             name='schedule_name',
-            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='nazwa planu'),
+            field=models.CharField(blank=True, max_length=100,
+                                   null=True, verbose_name='nazwa planu'),
         ),
     ]

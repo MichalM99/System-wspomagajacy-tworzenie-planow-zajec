@@ -1,24 +1,28 @@
 import datetime
 import os
 
-import xlsxwriter
-from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import FileResponse, HttpResponse
+from django.http import FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.loader import get_template, render_to_string
-from django.views.generic import View
 
-from account.models import Profile
-from schedule.forms import (AddAvailabilityForm, AddGroupForm, AddRoomForm,
-                            AddRoomToScheduleForm, AddScheduleForm,
-                            AddScheduleItemForm, AddYear, EditRoomForm,
-                            ManageYearForm, SearchRoom, SearchYear, AddLectureForm)
-from schedule.models import (Group, LecturerAvailability, LecturerItem, Room,
-                             RoomItem, Schedule, ScheduleItem, WeekDay, Year, Lecture)
-from schedule.utils import (check_availability, check_datetime, is_group_free,
-                            is_lecturer_free, is_room_free)
+from schedule.forms import (AddAvailabilityForm, AddGroupForm, AddLectureForm,
+                            AddRoomForm, AddScheduleForm, AddScheduleItemForm,
+                            AddYear, EditRoomForm, ManageYearForm, SearchRoom,
+                            SearchYear)
+from schedule.models import (Group, Lecture, LecturerAvailability,
+                             LecturerItem, Room, RoomItem, Schedule,
+                             ScheduleItem, WeekDay, Year)
+from schedule.utils import (check_availability, check_datetime,
+                            check_existing_room, check_group_existance,
+                            check_if_fits_lecturer_preferences,
+                            check_if_lecturer_is_busy,
+                            create_schedule_existance_list, generate_xlsx,
+                            get_availability, get_schedule_ids,
+                            get_schedule_items_based_on_year_zip,
+                            is_group_free, is_room_free,
+                            is_there_unassigned_item, validate_availability,
+                            xslx_toPdf)
 
 
 def set_preferences(request):
@@ -53,50 +57,8 @@ def delete_availability(request, id):
     return redirect(request.META['HTTP_REFERER'])
 
 
-def get_availability(request):
-    """Returns availability list for current logged user/lecturer."""
-    weekdays = WeekDay.objects.filter(lecturer=request.user).order_by('weekday')
-    availability_list = []
-    for weekday in weekdays:
-        availability_list.append(LecturerAvailability.objects.filter(weekday=weekday))
-    return availability_list
-
-
-def validate_availability(request, weekday, from_hour, to_hour):
-    """Checks whether added availability doesn't interfere with already added."""
-    weekdays = WeekDay.objects.filter(lecturer=request.user, weekday=weekday)
-    if weekdays.count() > 0:
-        for weekday in weekdays:
-            availability = LecturerAvailability.objects.filter(weekday=weekday)
-            for item in availability:
-                if not check_availability(from_hour, to_hour, item):
-                    return False
-        return True
-    else:
-        return True
-
-
-def create_schedule_existance_list(results):
-    existance_list = []
-    for item in results:
-        if Schedule.objects.filter(year=item):
-            existance_list.append(True)
-        else:
-            existance_list.append(False)
-    return existance_list
-
-
-def get_schedule_ids(results):
-    schedule_ids = []
-    for item in results:
-        if Schedule.objects.filter(year=item):
-            schedule_ids.append(Schedule.objects.get(year_id=item.id))
-        else:
-            schedule_ids.append(None)
-    return schedule_ids
-
-
 def year_group_management(request):
+    """View responsible for managins year's groups."""
     form = SearchYear()
     query = None
     results = []
@@ -122,6 +84,7 @@ def year_group_management(request):
 
 
 def add_year(request):
+    """View responsible for adding year."""
     if request.method == 'POST':
         year_form = AddYear(request.POST)
         if year_form.is_valid():
@@ -168,15 +131,8 @@ def manage_year(request, id):
     })
 
 
-def check_group_existance(year_id, group_number):
-    groups = Group.objects.filter(year_id=year_id, group_number=group_number)
-    if groups:
-        return True
-    else:
-        return False
-
-
 def add_group(request, id):
+    """View responsible for adding groups to specific year."""
     if request.method == "POST":
         form = AddGroupForm(request.POST)
         if form.is_valid():
@@ -206,15 +162,8 @@ def delete_year(request, id):
     return redirect(year_group_management)
 
 
-def check_existing_room(room_name):
-    existing_rooms = Room.objects.filter(room_name=room_name)
-    if existing_rooms:
-        return True
-    else:
-        return False
-
-
 def manage_room(request):
+    """View for managing rooms."""
     search_form = SearchRoom()
     query = None
     rooms = []
@@ -264,7 +213,7 @@ def edit_room(request, id):
         if form.is_valid():
             cd = form.cleaned_data['room_name']
             if room_name == cd:
-                print("haha")
+                print("x")
             elif check_existing_room(cd):
                 error = "Taka sala juz istnieje!"
                 return render(request, 'schedule/edit_room.html',
@@ -276,22 +225,9 @@ def edit_room(request, id):
     return render(request, 'schedule/edit_room.html', {'form': form, 'data': data, 'id': id})
 
 
-def manage_schedule(request):
-    """Basic view for schedules."""
-    schedules = Schedule.objects.all()
-    paginator = Paginator(schedules, 10)
-    page_number = request.GET.get('page')
-    schedules = paginator.get_page(page_number)
-    # print(is_lecturer_free(User.objects.get(id=request.user.id), 0, datetime.datetime.strptime('13:15', '%H:%M').time(), datetime.datetime.strptime('14:30', '%H:%M').time()))
-    # print(is_room_free(Room.objects.get(room_name='15'), datetime.datetime.strptime('12:50', '%H:%M').time(), datetime.datetime.strptime('13:30', '%H:%M').time(), 0))
-    # print(is_group_free(Group.objects.get(id=12), datetime.datetime.strptime('13:15', '%H:%M').time(), datetime.datetime.strptime('13:45', '%H:%M').time(), 0))
-    return render(request, 'schedule/manage_schedule.html', {'schedules': schedules})
-
-
 def delete_schedule(request, pk):
     """Deletes single schedule based on pk."""
     query = Schedule.objects.get(year_id=pk)
-    print(query)
     query.delete()
     return redirect(year_group_management)
 
@@ -301,27 +237,6 @@ def delete_schedule_item(request, id):
     query = ScheduleItem.objects.get(id=id)
     query.delete()
     return redirect(request.META['HTTP_REFERER'])
-
-
-def edit_schedule(request, id):
-    """Edit schedule view."""
-    return render(request, 'schedule/edit_schedule.html', {})
-
-
-def get_schedule_items_based_on_year_zip(year_id):
-    groups = Group.objects.filter(year_id=year_id).order_by('group_number')
-    schedule_items_list = []
-    lecturer_item_list = []
-
-    for group in groups:
-        for item in ScheduleItem.objects.filter(group=group).order_by('group__group_number'):
-            schedule_items_list.append(item)
-    for item in schedule_items_list:
-        if LecturerItem.objects.filter(schedule_item=item).exists():
-            lecturer_item_list.append(LecturerItem.objects.get(schedule_item=item))
-        else:
-            lecturer_item_list.append(None)
-    return zip(schedule_items_list, lecturer_item_list)
 
 
 def create_schedule(request, id):
@@ -376,31 +291,8 @@ def create_schedule(request, id):
     })
 
 
-def check_if_fits_lecturer_preferences(lecturer, from_hour, to_hour, weekday):
-    """Checks whether lecturer can be assigned to classes."""
-    weekdays = WeekDay.objects.filter(weekday=weekday, lecturer=lecturer)
-    availability_count = 0
-    for weekday in weekdays:
-        availabilities = LecturerAvailability.objects.filter(weekday=weekday)
-        for availability in availabilities:
-            availability_from_hour = datetime.datetime.strptime(str(availability.from_hour), '%H:%M:%S')
-            availability_to_hour = datetime.datetime.strptime(str(availability.to_hour), '%H:%M:%S')
-            if from_hour.time() >= availability_from_hour.time() and to_hour.time() <= availability_to_hour.time():
-                return True
-    return False
-
-
-def check_if_lecturer_is_busy(lecturer, from_hour, to_hour, weekday):
-    lecturer_items = LecturerItem.objects.filter(lecturer=lecturer)
-    for item in lecturer_items:
-        schedule_item = item.schedule_item
-        if item.schedule_item.weekday == weekday:
-            if not check_datetime(from_hour, to_hour, schedule_item):
-                return False
-    return True
-
-
 def is_room_free(schedule_item, from_hour, to_hour, weekday):
+    """Function that checks whether room is free during specific time."""
     rooms = Room.objects.filter(type_of_lecture=schedule_item.lecture.type_of_lecture)
     for room in rooms:
         room_items = RoomItem.objects.filter(room=room)
@@ -415,8 +307,8 @@ def is_room_free(schedule_item, from_hour, to_hour, weekday):
 
 def generate_schedule(year_id, schedule_data):
     """Function that generates schedule based on added schedule items."""
-    break_time = datetime.timedelta(minutes=schedule_data['break_time'] - 15)  # Minimalna przerwa
-    lecture_unit_duration = schedule_data['lecture_unit']  # Czas trwania pojedynczej jednostki lekcyjnej
+    break_time = datetime.timedelta(minutes=schedule_data['break_time'] - 15)
+    lecture_unit_duration = schedule_data['lecture_unit']
     schedule_items = get_schedule_items_based_on_year_zip(year_id)
     delta = datetime.timedelta(minutes=15)
     start_time = datetime.datetime(1900, 1, 1, 8, 0, 0)
@@ -447,7 +339,6 @@ def generate_schedule(year_id, schedule_data):
                                                           day_of_week)
                 room_free = is_room_free(schedule_item, start_time, start_time + duration_time, day_of_week)
                 can_assign_time = group_free and lecturer_free and lecturer_busy and room_free != False
-                # print(str(group_free) + str(lecturer_free) + str(lecturer_busy) + str(room_free != False))
                 if can_assign_time:
                     ScheduleItem.objects.filter(id=schedule_item.id).update(schedule=schedule,
                                                                             from_hour=start_time.time(),
@@ -456,7 +347,6 @@ def generate_schedule(year_id, schedule_data):
                     RoomItem.objects.create(room=room_free, schedule_item_id=schedule_item.id)
                     day_of_week = 0
                     skip_loop = False
-                    start_time = datetime.datetime(1900, 1, 1, 8, 0, 0)
                     break
                 start_time += delta
             day_of_week += 1
@@ -467,61 +357,9 @@ def generate_schedule(year_id, schedule_data):
         return False  # Returns False if plan couldn't be generated
     return True  # Returns True if plan could be generated
 
-    # przypisać generowanie tylko na poszczególne dni
-    # from_hour = dt.datetime.strptime(str(from_hour), '%H:%M:%S')
-    # to_hour = dt.datetime.strptime(str(to_hour), '%H:%M:%S')
-    # from_hour = (from_hour - dt.timedelta(minutes=15)).time()
-    # to_hour = (to_hour + dt.timedelta(minutes=15)).time()
-
-
-def get_schedule_items_for_year(year_id):
-    groups = Group.objects.filter(year_id=year_id)
-    schedule_items = []
-    for group in groups:
-        for item in ScheduleItem.objects.filter(group=group):
-            schedule_items.append(item)
-    return schedule_items
-
-
-def is_there_unassigned_item(year_id):
-    schedule_items = get_schedule_items_for_year(year_id)
-    for item in schedule_items:
-        if item.schedule is None:
-            return True
-    return False
-
-
-def get_days_group(id):
-    schedule_items = ScheduleItem.objects.filter(schedule=Schedule.objects.get(id=id)).order_by('weekday', 'from_hour')
-    data_dict = {}
-    groups = []
-    days_group = {}
-    for schedule_item in schedule_items:
-        data_dict[schedule_item.group] = []
-        if schedule_item.group not in groups:
-            groups.append(schedule_item.group)
-
-    mapping = {
-        "Poniedziałek": 1,
-        "Wtorek": 2,
-        "Środa": 3,
-        "Czwartek": 4,
-        "Piątek": 5,
-        "Sobota": 6,
-        "Niedziela": 7
-    }
-
-    for group in groups:
-        days_group[group] = []
-        items = ScheduleItem.objects.filter(group=group)
-        for item in items:
-            if item.get_weekday_display() not in days_group[group]:
-                days_group[group].append(item.get_weekday_display())
-        days_group[group] = sorted(days_group[group], key=lambda x: mapping[x])
-    return days_group
-
 
 def schedule_view(request, id):
+    """View of specific schedule."""
     schedule_items = ScheduleItem.objects.filter(schedule=Schedule.objects.get(id=id)).order_by('weekday', 'from_hour')
     year = Schedule.objects.get(id=id).year
     schedule_id = Schedule.objects.get(id=id).id
@@ -574,102 +412,8 @@ def schedule_view(request, id):
     })
 
 
-def get_days_of_week(schedule_items):
-    days = []
-    for item in schedule_items:
-        if item.get_weekday_display() not in days:
-            days.append(item.get_weekday_display())
-    return days
-
-
-def generate_xlsx(year, data_dict, days_group):
-    year_name = str(year).replace(' ', '_').replace('/', '_')
-    if os.path.isfile('static/schedules_pdf/{}_{}.xlsx'.format(year.id, year_name)):
-        return True
-    workbook = xlsxwriter.Workbook('static/schedules_pdf/{}_{}.xlsx'.format(year.id, year_name))
-    worksheet = workbook.add_worksheet()
-    headings = [
-        'Zajęcia',
-        'Od:',
-        'Do:',
-        'Prowadzący',
-        'Sala'
-    ]
-    # Zajęcia, Od, Do, Prowadzący, Sala
-
-    merge_format = workbook.add_format({
-        'bold': 1,
-        'border': 1,
-        'align': 'center',
-        'valign': 'vcenter',
-        'fg_color': 'white'})
-
-    main_heading = workbook.add_format({
-        'bold': 1,
-        'align': 'center',
-        'valign': 'vcenter', })
-
-    worksheet.set_column(0, 0, 35)
-    worksheet.set_column(1, 2, 8)
-    worksheet.set_column(3, 3, 35)
-    worksheet.set_column(4, 4, 8)
-
-    day_format = workbook.add_format({
-        'bold': 1,
-        'border': 1,
-        'align': 'center',
-        'valign': 'vcenter',
-        'color': 'white',
-        'fg_color': 'black'})
-
-    headings_format = workbook.add_format({
-        'bold': 1,
-        'border': 1,
-        'align': 'center',
-        'valign': 'vcenter', })
-
-    classes_format = workbook.add_format({
-        'bold': 1,
-        'border': 1, })
-
-    worksheet.merge_range('A{}:E{}'.format(1, 1), 'Plan: {}'.format(year_name), main_heading)
-    row = 2
-    for gr, d in days_group.items():
-        worksheet.merge_range('A{}:E{}'.format(row, row), '{}'.format(gr), merge_format)
-        row += 1
-        for col in range(0, 5):
-            worksheet.write(row - 1, col, headings[col], headings_format)
-        for ds in d:
-            row += 1
-            worksheet.merge_range('A{}:E{}'.format(row, row), '{}'.format(ds), day_format)
-            for item, val in data_dict.items():
-                if item == gr:
-                    for x in val:
-                        for dy, z in x.items():
-                            if ds == dy:
-                                row += 1
-                                for col in range(0, 5):
-                                    worksheet.write(row - 1, col, z[col], classes_format)
-
-        row += 3
-    workbook.close()
-    xslx_toPdf(year, row)
-
-
-def xslx_toPdf(year, row):
-    year_name = str(year).replace(' ', '_').replace('/', '_')
-    import asposecells
-    import jpype
-    if not jpype.isJVMStarted():
-        jpype.startJVM()
-    from asposecells.api import FileFormatType
-    workbook = asposecells.api.Workbook("static/schedules_pdf/{}_{}.xlsx".format(year.id, year_name))
-    saveOptions = asposecells.api.PdfSaveOptions()
-    saveOptions.setOnePagePerSheet(True)
-    workbook.save("static/schedules_pdf/{}_{}.pdf".format(year.id, year_name), saveOptions)
-
-
 def pdf_view(request, id):
+    """Function opens PDF file with schedule table."""
     year = Year.objects.get(id=id)
     year_name = str(year).replace(' ', '_').replace('/', '_')
     filepath = os.path.join('static/schedules_pdf/{}_{}.pdf'.format(year.id, year_name))
@@ -677,14 +421,16 @@ def pdf_view(request, id):
 
 
 def delete_lecture(request, id, pk):
-    """Deletes single group based on pk."""
+    """Function deletes single group based on pk."""
     query = Lecture.objects.get(id=id)
     query.delete()
     return redirect(request.META['HTTP_REFERER'])
 
 
 def external_schedule_view(request, id):
-    schedule_items = ScheduleItem.objects.filter(schedule=Schedule.objects.get(id=id)).order_by('weekday', 'from_hour')
+    """View for exporting schedule to the outsiders."""
+    schedule_items = ScheduleItem.objects.filter(
+        schedule=Schedule.objects.get(id=id)).order_by('weekday', 'from_hour')
     year = Schedule.objects.get(id=id).year
     data_set = []
     data_dict = {}
@@ -725,8 +471,6 @@ def external_schedule_view(request, id):
         item = {schedule_item.get_weekday_display(): list}
         data_set.append(item)
         data_dict[schedule_item.group].append(item)
-    print(data_dict)
-    print(data_set)
     return render(request, 'schedule/external_schedule_view.html', {
         'data_set': data_set,
         'data_dict': data_dict,

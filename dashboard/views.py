@@ -11,7 +11,7 @@ from dashboard.forms import AddNewsForm
 from dashboard.models import News
 from dashboard.utils import generate_xlsx_personal
 from schedule.forms import SearchRoom
-from schedule.models import LecturerItem, RoomItem, Schedule, ScheduleItem, Room
+from schedule.models import LecturerItem, Room, RoomItem
 
 
 @login_required

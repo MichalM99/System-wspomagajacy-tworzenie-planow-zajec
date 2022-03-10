@@ -1,19 +1,14 @@
 from io import BytesIO
 
-from django.contrib import messages
-from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.validators import FileExtensionValidator
-from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 from openpyxl import load_workbook
 
 from account import utils
-from account.forms import (ProfileEditForm, UserEditForm, UserLoginForm,
-                           UserRegistrationForm)
+from account.forms import ProfileEditForm, UserEditForm, UserRegistrationForm
 
 from .models import Profile
 

@@ -8,6 +8,7 @@ from .models import Profile
 
 
 class UserLoginForm(AuthenticationForm):
+    """Form for user logging."""
     def __init__(self, *args, **kwargs):
         super(UserLoginForm, self).__init__(*args, **kwargs)
 
@@ -17,12 +18,13 @@ class UserLoginForm(AuthenticationForm):
         attrs={
             'class': 'login-input',
             'placeholder': 'Hasło',
-        }
-))
-
+              }
+        )
+    )
 
 
 class UserRegistrationForm(forms.ModelForm):
+    """Form for user registration."""
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'email')
@@ -42,12 +44,14 @@ class UserRegistrationForm(forms.ModelForm):
 
 
 class UserEditForm(forms.ModelForm):
+    """Form for editting user account details."""
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'email')
 
 
 class ProfileEditForm(forms.ModelForm):
+    """Form for editting user account details."""
     class Meta:
         model = Profile
         fields = ('phone_number', 'academic_degree')

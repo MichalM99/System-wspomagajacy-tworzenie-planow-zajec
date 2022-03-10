@@ -1,10 +1,9 @@
-import datetime as dt
 
 from django import forms
 from django.core.exceptions import ValidationError
 
 from account.models import Profile
-from schedule.models import Group, Lecture, Room, Schedule, Year
+from schedule.models import Group, Lecture, Room, Year
 from schedule.utils import generate_hours
 
 DAYS_OF_WEEK = (

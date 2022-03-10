@@ -1,6 +1,5 @@
 from django.contrib import admin
 
-import account.models
 import schedule.models
 from account.models import Profile
 
