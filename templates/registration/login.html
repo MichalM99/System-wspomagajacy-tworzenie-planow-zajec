@@ -3,26 +3,26 @@
 {% load static %}
 
 {% block css %}
-    <link rel="stylesheet" href="{% static "css/registration/login.css" %}" type="text/css" />
+    <link rel="stylesheet" href="{% static "css/registration/login.css" %}" type="text/css"/>
 {% endblock %}
 
 {% block content %}
     {% load crispy_forms_tags %}
-<h1>Panel logowania</h1>
+    <h1>Panel logowania</h1>
     {% if form.errors %}
-    <p>
-        Podane dane są nieprawidłowe.
-        Spróbuj ponownie.
-    </p>
+        <p>
+            Podane dane są nieprawidłowe.
+            Spróbuj ponownie.
+        </p>
     {% endif %}
     <div class="login-form">
-    <form action="{% url 'login' %}" method="post">
-        {{ form.username }}
-        {{ form.password}}
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ next }}"/>
-        <p><input class="btn btn-info" type="submit" value="Zaloguj"></p>
-        <p><a class="btn btn-outline-info" href="{% url "password_reset" %}">Zapomniałeś hasła?</a></p>
-    </form>
+        <form action="{% url 'login' %}" method="post">
+            {{ form.username }}
+            {{ form.password }}
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}"/>
+            <p><input class="btn btn-info" type="submit" value="Zaloguj"></p>
+            <p><a class="btn btn-outline-info" href="{% url "password_reset" %}">Zapomniałeś hasła?</a></p>
+        </form>
     </div>
 {% endblock %}

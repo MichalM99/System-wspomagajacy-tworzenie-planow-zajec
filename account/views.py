@@ -14,6 +14,7 @@ from .models import Profile
 
 
 def register(request):
+    """View for registration."""
     if request.method == 'POST':
         user_form = UserRegistrationForm(request.POST)
         if user_form.is_valid():
@@ -71,6 +72,7 @@ def register(request):
 
 @login_required
 def edit_profile(request):
+    """View for editting user profile."""
     if request.method == "POST":
         user_form = UserEditForm(instance=request.user, data=request.POST)
         profile_form = ProfileEditForm(

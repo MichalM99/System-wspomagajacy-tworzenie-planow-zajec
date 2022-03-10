@@ -50,8 +50,9 @@
                                 <a class="btn btn-info btn-sm managebtn" href="{% url 'create_schedule' id=year.id %}">Stwórz
                                     plan</a>
                             {% else %}
-{#                                <a class="btn btn-info btn-sm managebtn" href="">Edytuj plan</a>#}
-                                <a class="btn btn-outline-info btn-sm managebtn" href="{% url 'schedule_view' id=schedule_id.id %}">Wyświetl plan</a>
+                                {#                                <a class="btn btn-info btn-sm managebtn" href="">Edytuj plan</a>#}
+                                <a class="btn btn-outline-info btn-sm managebtn"
+                                   href="{% url 'schedule_view' id=schedule_id.id %}">Wyświetl plan</a>
                             {% endif %}
                         </th>
                     </tr>

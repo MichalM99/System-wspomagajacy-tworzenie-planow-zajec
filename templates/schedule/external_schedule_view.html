@@ -31,8 +31,8 @@
         crossorigin="anonymous"></script>
 <script>
     $(function () {
-  $('[data-toggle="popover"]').popover()
-})
+        $('[data-toggle="popover"]').popover()
+    })
 </script>
 <div class="card" style="width: 60rem;">
     <h5 class="card-header">Widok planu: {{ year }}</h5>
@@ -90,22 +90,10 @@
         <button type="button" class="btn btn-outline-info clipboard" data-toggle="popover" title="Sukces"
                 data-content="Link został pomyślnie skopiowany">Skopiuj link
         </button>
-{#        <p id="succes_copy" style="margin-top: 1rem; margin-bottom: 0rem;"></p>#}
+        {#        <p id="succes_copy" style="margin-top: 1rem; margin-bottom: 0rem;"></p>#}
 
     </div>
 </div>
-{#<script>#}
-{#    var $temp = $("<input>");#}
-{#    var $url = $(location).attr('href');#}
-{##}
-{#    $('.clipboard').on('click', function () {#}
-{#        $("body").append($temp);#}
-{#        $temp.val($url).select();#}
-{#        document.execCommand("copy");#}
-{#        $temp.remove();#}
-{#        $("#succes_copy").text("Link skopiowany do schowka!");#}
-{#    })#}
-{#</script>#}
 </body>
 
 </html>

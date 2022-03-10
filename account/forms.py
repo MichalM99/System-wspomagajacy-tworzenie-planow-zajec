@@ -9,6 +9,7 @@ from .models import Profile
 
 class UserLoginForm(AuthenticationForm):
     """Form for user logging."""
+
     def __init__(self, *args, **kwargs):
         super(UserLoginForm, self).__init__(*args, **kwargs)
 
@@ -18,18 +19,20 @@ class UserLoginForm(AuthenticationForm):
         attrs={
             'class': 'login-input',
             'placeholder': 'Hasło',
-              }
-        )
+        }
+    )
     )
 
 
 class UserRegistrationForm(forms.ModelForm):
     """Form for user registration."""
+
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'email')
 
     def clean_email(self):
+        """Checks if email isn't already used."""
         email = self.cleaned_data.get('email')
         if email and User.objects.filter(email=email).count():
             raise forms.ValidationError('Użytkownik o tym adresie email już istnieje!')
@@ -45,6 +48,7 @@ class UserRegistrationForm(forms.ModelForm):
 
 class UserEditForm(forms.ModelForm):
     """Form for editting user account details."""
+
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'email')
@@ -52,6 +56,7 @@ class UserEditForm(forms.ModelForm):
 
 class ProfileEditForm(forms.ModelForm):
     """Form for editting user account details."""
+
     class Meta:
         model = Profile
         fields = ('phone_number', 'academic_degree')

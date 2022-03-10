@@ -13,7 +13,7 @@ from schedule.forms import (AddAvailabilityForm, AddGroupForm, AddLectureForm,
 from schedule.models import (Group, Lecture, LecturerAvailability,
                              LecturerItem, Room, RoomItem, Schedule,
                              ScheduleItem, WeekDay, Year)
-from schedule.utils import (check_availability, check_datetime,
+from schedule.utils import (check_datetime,
                             check_existing_room, check_group_existance,
                             check_if_fits_lecturer_preferences,
                             check_if_lecturer_is_busy,
@@ -21,8 +21,7 @@ from schedule.utils import (check_availability, check_datetime,
                             get_availability, get_schedule_ids,
                             get_schedule_items_based_on_year_zip,
                             is_group_free, is_room_free,
-                            is_there_unassigned_item, validate_availability,
-                            xslx_toPdf)
+                            is_there_unassigned_item, validate_availability)
 
 
 def set_preferences(request):

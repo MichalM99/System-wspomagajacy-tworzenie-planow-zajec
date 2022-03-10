@@ -12,6 +12,7 @@ exclude =
     admin.py
     urls.py
     __init__.py
+    tests.py
 
 ignore =
     E121,
@@ -41,5 +42,6 @@ ignore =
     F403,
     B007,
     B950,
+    D401,
 
 max-line-length = 200

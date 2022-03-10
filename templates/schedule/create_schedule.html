@@ -15,7 +15,8 @@
                 <h5 class="card-header">Określ główne parametry</h5>
                 <div class="card-body">
                     {% if is_generated == False %}
-                        <p class="font-weight-bolder">Plan nie mógł zostać wygenerowany z uwagi na dostępność sal, wykładowców, bądź grup!</p>
+                        <p class="font-weight-bolder">Plan nie mógł zostać wygenerowany z uwagi na dostępność sal,
+                            wykładowców, bądź grup!</p>
                     {% endif %}
                     {% if items_count == True %}
                         <p class="font-weight-bolder">Do planu nie zostały przydzielone żadne jednostki zajęciowe! </p>
@@ -23,7 +24,8 @@
                     <form action="." method="post">
                         {{ add_schedule_form|crispy }}
                         {% csrf_token %}
-                        <input class="btn btn-info" id="registerbutton" name="create_schedule" type="submit" value="Stwórz plan">
+                        <input class="btn btn-info" id="registerbutton" name="create_schedule" type="submit"
+                               value="Stwórz plan">
                     </form>
                 </div>
             </div>
@@ -34,7 +36,7 @@
                         <thead>
                         <th scope="col">Nazwa zajęć:</th>
                         <th scope="col">Rodzaj zajęć:</th>
-                        <th scope="col">Liczba jednostek godzinowych: </th>
+                        <th scope="col">Liczba jednostek godzinowych:</th>
                         <th scope="col">Numer grupy:</th>
                         <th scope="col">Liczebność grupy:</th>
                         <th scope="col">Prowadzący:</th>
@@ -50,7 +52,8 @@
                                 <th>{{ item.group.quantity }}</th>
                                 <th> {{ lecturer.lecturer }} </th>
                                 <th><a class="btn btn-outline-info btn-sm managebtn"
-                                       href="{% url 'delete_schedule_item' id=item.id %}">Usuń jednostkę zajęciową</a></th>
+                                       href="{% url 'delete_schedule_item' id=item.id %}">Usuń jednostkę zajęciową</a>
+                                </th>
                             </tr>
                         {% endfor %}
                         </tbody>
@@ -66,7 +69,8 @@
                         {{ add_schedule_item_form|crispy }}
                         {{ add_schedule_item_form.errors }}
                         {{ add_schedule_item_form.non_field_errors }}
-                        <input class="btn btn-info" id="registerbutton" name="add_schedule_item" type="submit" value="Dodaj jednostkę zajęciową">
+                        <input class="btn btn-info" id="registerbutton" name="add_schedule_item" type="submit"
+                               value="Dodaj jednostkę zajęciową">
                     </form>
                 </div>
             </div>

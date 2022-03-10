@@ -9,6 +9,7 @@ from schedule.models import (Group, LecturerAvailability, LecturerItem, Room,
 
 
 def generate_hours(step_minutes, start_hour, end_hour):
+    """Function generates tuple with hours based on arguments."""
     hours = []
     for i in range(start_hour, end_hour):
         for j in range(int(60 / step_minutes)):
@@ -60,6 +61,7 @@ def is_lecturer_free(lecturer, weekday, from_hour, to_hour):
 
 
 def is_room_free(room, from_hour, to_hour, weekday):
+    """Function check if room is free during specific time."""
     room_items = RoomItem.objects.filter(room=room)
     for item in room_items:
         schedule_item = item.schedule_item
@@ -87,6 +89,7 @@ def check_datetime(from_hour, to_hour, item):
 
 
 def is_group_free(group, from_hour, to_hour, weekday):
+    """Function checks if group can have classes at specific time."""
     schedule_items = ScheduleItem.objects.filter(group=group, weekday=weekday)
     for item in schedule_items:
         if not check_datetime(from_hour, to_hour, item):
@@ -129,6 +132,7 @@ def create_schedule_existance_list(results):
 
 
 def get_schedule_ids(results):
+    """Function returns schedule_ids for purpose of search bar."""
     schedule_ids = []
     for item in results:
         if Schedule.objects.filter(year=item):
@@ -139,6 +143,7 @@ def get_schedule_ids(results):
 
 
 def check_group_existance(year_id, group_number):
+    """Checks if specific year has groups assigned."""
     groups = Group.objects.filter(year_id=year_id, group_number=group_number)
     if groups:
         return True
@@ -147,6 +152,7 @@ def check_group_existance(year_id, group_number):
 
 
 def check_existing_room(room_name):
+    """Returns whether room with specific name exists."""
     existing_rooms = Room.objects.filter(room_name=room_name)
     if existing_rooms:
         return True

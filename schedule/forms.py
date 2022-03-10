@@ -1,4 +1,3 @@
-
 from django import forms
 from django.core.exceptions import ValidationError
 
@@ -18,6 +17,8 @@ DAYS_OF_WEEK = (
 
 
 class AddAvailabilityForm(forms.Form):
+    """Form for adding lecturers time preferences/time availability."""
+
     weekday = forms.IntegerField(widget=forms.Select(choices=DAYS_OF_WEEK, attrs={
         'class': 'form-control-sm'
     }))
@@ -42,6 +43,8 @@ TYPE_OF_STUDIES = (
 
 
 class AddYear(forms.Form):
+    """Forms for adding new Year."""
+
     year_name = forms.CharField(max_length=100, label='Nazwa kierunku')
     speciality = forms.CharField(max_length=50, label='Specjalność')
     year_period = forms.CharField(max_length=9, label='Rok akademicki (yyyy/yyyy)')
@@ -53,6 +56,7 @@ class AddYear(forms.Form):
     }))
 
     def clean_year_period(self):
+        """Validation for year_period in form."""
         year_period = self.cleaned_data['year_period']
         first_half = year_period[:4]
         second_half = year_period[5:]
@@ -68,14 +72,20 @@ class AddYear(forms.Form):
 
 
 class SearchYear(forms.Form):
+    """Form for Year search bar."""
+
     query = forms.CharField(label='Kierunek/rok/specjalność:', required=False)
 
 
 class SearchRoom(forms.Form):
+    """Form for Room search bar."""
+
     query = forms.CharField(label='Nazwa/numer sali:', required=False)
 
 
 class ManageYearForm(forms.ModelForm):
+    """Form for editting Year."""
+
     class Meta:
         model = Year
         fields = ('year_name', 'speciality', 'year_period', 'type_of_studies', 'type_of_semester')
@@ -95,12 +105,16 @@ class ManageYearForm(forms.ModelForm):
 
 
 class AddGroupForm(forms.ModelForm):
+    """Form for adding Group."""
+
     class Meta:
         model = Group
         exclude = ('year',)
 
 
 class AddRoomForm(forms.ModelForm):
+    """Form for adding Room."""
+
     class Meta:
         model = Room
         fields = ('__all__')
@@ -113,6 +127,8 @@ class AddRoomForm(forms.ModelForm):
 
 
 class EditRoomForm(forms.ModelForm):
+    """Form for editing Room."""
+
     class Meta:
         model = Room
         fields = ('__all__')
@@ -125,11 +141,15 @@ class EditRoomForm(forms.ModelForm):
 
 
 class AddScheduleForm(forms.Form):
+    """Form for creating schedule."""
+
     lecture_unit = forms.IntegerField(max_value=120, min_value=15, label='Długość jednostki godzinowej (w minutach)')
     break_time = forms.IntegerField(max_value=120, min_value=15, label='Minimalna długość przerwy (w minutach)')
 
 
 class AddScheduleItemForm(forms.Form):
+    """Form for adding schedule_item."""
+
     group = forms.ModelChoiceField(queryset=Group.objects.all(), label='Grupa',
                                    widget=forms.Select(attrs={'class': 'form-control-sm'}))
     lecture = forms.ModelChoiceField(queryset=Lecture.objects.all(), label='Zajęcia',
@@ -148,6 +168,8 @@ class AddScheduleItemForm(forms.Form):
 
 
 class AddRoomToScheduleForm(forms.Form):
+    """Form for assigning room."""
+
     room = forms.ModelChoiceField(queryset=Room.objects.all(), label='Wybierz salę')
 
     def __init__(self, *args, **kwargs):
@@ -165,6 +187,8 @@ TYPE_OF_LECTURE = (
 
 
 class AddLectureForm(forms.Form):
+    """Form for adding lecture to schedule."""
+
     lecture_name = forms.CharField(label='Nazwa zajęć', max_length=100)
     type_of_lecture = forms.IntegerField(label='Rodzaj zajęć', widget=forms.Select(choices=TYPE_OF_LECTURE, attrs={
         'class': 'form-control-sm'

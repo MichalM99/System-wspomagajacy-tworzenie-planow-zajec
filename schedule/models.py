@@ -23,6 +23,8 @@ TYPE_OF_LECTURE = (
 
 
 class Year(models.Model):
+    """Year model."""
+
     year_name = models.CharField(verbose_name='kierunek', max_length=100)
     speciality = models.CharField(verbose_name='Specjalność', max_length=50)
     year_period = models.CharField(verbose_name='Rok akademicki (yyyy/yyyy)', max_length=9,
@@ -40,6 +42,8 @@ class Year(models.Model):
 
 
 class Schedule(models.Model):
+    """Schedule model."""
+
     schedule_name = models.CharField(verbose_name='nazwa planu', max_length=100, null=True, blank=True)
     lecture_unit = models.IntegerField(verbose_name='długość jednostki godzinowej (w minutach)', default=45)
     break_time = models.IntegerField(verbose_name='długość przerwy (w minutach)', default=15)
@@ -53,6 +57,8 @@ class Schedule(models.Model):
 
 
 class Group(models.Model):
+    """Group model."""
+
     year = models.ForeignKey(Year, models.CASCADE)
     quantity = models.IntegerField(verbose_name='liczebność grupy')
     group_number = models.IntegerField(verbose_name='numer grupy')
@@ -66,6 +72,8 @@ class Group(models.Model):
 
 
 class Lecture(models.Model):
+    """Lecture model."""
+
     lecture_name = models.CharField(verbose_name='nazwa zajęć', max_length=100)
     type_of_lecture = models.IntegerField(choices=TYPE_OF_LECTURE, verbose_name='Rodzaj zajęć')
     year = models.ForeignKey(Year, models.CASCADE, null=True)
@@ -75,6 +83,8 @@ class Lecture(models.Model):
 
 
 class ScheduleItem(models.Model):
+    """ScheduleItem model."""
+
     schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE, null=True, blank=True)
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE)
@@ -88,6 +98,8 @@ class ScheduleItem(models.Model):
 
 
 class Room(models.Model):
+    """Room model item."""
+
     room_name = models.CharField(verbose_name='nazwa sali', max_length=100)
     type_of_lecture = models.IntegerField(choices=TYPE_OF_LECTURE, verbose_name='Rodzaj przewidzianych zajęć')
     capacity = models.IntegerField(verbose_name='pojemnosc')
@@ -102,6 +114,8 @@ class Room(models.Model):
 
 
 class RoomItem(models.Model):
+    """RoomItem model."""
+
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     schedule_item = models.ForeignKey(ScheduleItem, on_delete=models.CASCADE, blank=True, null=True)
 
@@ -112,11 +126,15 @@ class RoomItem(models.Model):
 
 
 class LecturerItem(models.Model):
+    """LecturerItem model."""
+
     lecturer = models.ForeignKey(Profile, on_delete=models.CASCADE)
     schedule_item = models.ForeignKey(ScheduleItem, on_delete=models.CASCADE)
 
 
 class WeekDay(models.Model):
+    """WeekDay model."""
+
     lecturer = models.ForeignKey(User, on_delete=models.CASCADE)
     weekday = models.IntegerField(choices=DAYS_OF_WEEK)
 
@@ -125,6 +143,8 @@ class WeekDay(models.Model):
 
 
 class LecturerAvailability(models.Model):
+    """LecturerAvailability model."""
+
     weekday = models.ForeignKey(WeekDay, on_delete=models.CASCADE)
     from_hour = models.TimeField(default=dt.time(00, 00))
     to_hour = models.TimeField(default=dt.time(00, 00))

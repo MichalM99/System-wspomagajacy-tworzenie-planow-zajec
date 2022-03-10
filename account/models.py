@@ -12,6 +12,8 @@ ACADEMIC_DEGREE = (
 
 
 class Profile(models.Model):
+    """Overriding default User model."""
+
     user = models.OneToOneField(settings.AUTH_USER_MODEL,
                                 on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=12, verbose_name='Numer telefonu')

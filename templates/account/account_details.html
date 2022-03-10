@@ -8,16 +8,16 @@
 {% endblock %}
 
 {% block screen %}
-<div class="card" style="width: 60rem;">
-  <h5 class="card-header">Konto </h5>
-  <div class="card-body">
-      <form action="." method="post" enctype="multipart/form-data">
-          {{ user_form|crispy }}
-          {{ profile_form|crispy }}
-          {% csrf_token %}
-          <input class="btn btn-info" id="registerbutton" type="submit" value="Zapisz zmiany">
-      </form>
-      <a class="btn btn-info" id="registerbutton" href="{% url "password_change" %}">Zmień hasło</a>
-  </div>
-</div>
+    <div class="card" style="width: 60rem;">
+        <h5 class="card-header">Konto </h5>
+        <div class="card-body">
+            <form action="." method="post" enctype="multipart/form-data">
+                {{ user_form|crispy }}
+                {{ profile_form|crispy }}
+                {% csrf_token %}
+                <input class="btn btn-info" id="registerbutton" type="submit" value="Zapisz zmiany">
+            </form>
+            <a class="btn btn-info" id="registerbutton" href="{% url "password_change" %}">Zmień hasło</a>
+        </div>
+    </div>
 {% endblock %}

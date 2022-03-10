@@ -2,10 +2,13 @@ import os
 
 import xlsxwriter
 
-from schedule.views import xslx_toPdf
+from account.models import Profile
+from schedule.models import LecturerItem
+from schedule.utils import xslx_toPdf
 
 
 def generate_xlsx_personal(lecturer, data_dict, days):
+    """Function that generates pdf file with lecturers personal plan."""
     year_name = str(lecturer).replace(' ', '_').replace('/', '_')
     if os.path.isfile('static/schedules_pdf/{}_{}.xlsx'.format(lecturer.id, year_name)):
         return True
@@ -18,14 +21,6 @@ def generate_xlsx_personal(lecturer, data_dict, days):
         'Prowadzący',
         'Sala'
     ]
-    # Zajęcia, Od, Do, Prowadzący, Sala
-
-    merge_format = workbook.add_format({
-        'bold': 1,
-        'border': 1,
-        'align': 'center',
-        'valign': 'vcenter',
-        'fg_color': 'white'})
 
     main_heading = workbook.add_format({
         'bold': 1,
@@ -72,3 +67,13 @@ def generate_xlsx_personal(lecturer, data_dict, days):
     row += 3
     workbook.close()
     xslx_toPdf(lecturer, row)
+
+
+def get_schedule_items_for_lecturer(lecturer):
+    """Function returns every schedule_item connected with specific lecturer."""
+    lecturer_items = LecturerItem.objects.filter(lecturer=Profile.objects.get(user=lecturer)).order_by(
+        'schedule_item__weekday', 'schedule_item__from_hour')
+    schedule_items = []
+    for item in lecturer_items:
+        schedule_items.append(item.schedule_item)
+    return schedule_items

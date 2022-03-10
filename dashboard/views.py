@@ -9,13 +9,14 @@ from django.shortcuts import redirect, render
 from account.models import Profile
 from dashboard.forms import AddNewsForm
 from dashboard.models import News
-from dashboard.utils import generate_xlsx_personal
+from dashboard.utils import generate_xlsx_personal, get_schedule_items_for_lecturer
 from schedule.forms import SearchRoom
 from schedule.models import LecturerItem, Room, RoomItem
 
 
 @login_required
 def dashboard_view(request):
+    """Main view after login."""
     schedule_items = get_schedule_items_for_lecturer(request.user)
     days = []
     data_set = []
@@ -45,16 +46,8 @@ def dashboard_view(request):
     })
 
 
-def get_schedule_items_for_lecturer(lecturer):
-    lecturer_items = LecturerItem.objects.filter(lecturer=Profile.objects.get(user=lecturer)).order_by(
-        'schedule_item__weekday', 'schedule_item__from_hour')
-    schedule_items = []
-    for item in lecturer_items:
-        schedule_items.append(item.schedule_item)
-    return schedule_items
-
-
 def news_view(request):
+    """View with list of news."""
     news = News.objects.all().order_by('-pub_date')
     paginator = Paginator(news, 5)
     page_number = request.GET.get('page')
@@ -72,6 +65,7 @@ def delete_news(request, id):
 
 
 def add_news(request):
+    """View for adding news."""
     if request.method == "POST":
         add_news_form = AddNewsForm(request.POST)
         if add_news_form.is_valid():
@@ -89,6 +83,7 @@ def add_news(request):
 
 
 def pdf_view_personal(request, id):
+    """Function that opens file with personal lecturer's schedule."""
     lecturer = Profile.objects.get(user=request.user)
     lecturer_name = str(lecturer).replace(' ', '_').replace('/', '_')
     filepath = os.path.join('static/schedules_pdf/{}_{}.pdf'.format(lecturer.id, lecturer_name))
@@ -96,6 +91,7 @@ def pdf_view_personal(request, id):
 
 
 def room_busy(request):
+    """View that lists rooms and their busy."""
     search_form = SearchRoom()
     query = None
     rooms = []
@@ -122,14 +118,9 @@ def room_busy(request):
         for room_item in room_items:
             room_busy_dict[room][room_item.schedule_item.get_weekday_display()].append(room_item)
 
-
-
-
-
     paginator = Paginator(rooms, 10)
     page_number = request.GET.get('page')
     rooms = paginator.get_page(page_number)
     return render(request, "dashboard/room_busy.html", {
         'rooms': rooms, 'query': query, 'search_form': search_form, 'room_busy_dict': room_busy_dict, 'days': days,
     })
-
