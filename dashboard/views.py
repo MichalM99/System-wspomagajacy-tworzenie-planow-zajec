@@ -46,6 +46,7 @@ def dashboard_view(request):
     })
 
 
+@login_required
 def news_view(request):
     """View with list of news."""
     news = News.objects.all().order_by('-pub_date')
@@ -57,6 +58,7 @@ def news_view(request):
     })
 
 
+@login_required
 def delete_news(request, id):
     """Deletes single group based on pk."""
     query = News.objects.get(id=id)
@@ -64,6 +66,7 @@ def delete_news(request, id):
     return redirect(request.META['HTTP_REFERER'])
 
 
+@login_required
 def add_news(request):
     """View for adding news."""
     if request.method == "POST":
@@ -82,6 +85,7 @@ def add_news(request):
     return render(request, "dashboard/add_news.html", {'add_news_form': add_news_form})
 
 
+@login_required
 def pdf_view_personal(request, id):
     """Function that opens file with personal lecturer's schedule."""
     lecturer = Profile.objects.get(user=request.user)
@@ -90,6 +94,7 @@ def pdf_view_personal(request, id):
     return FileResponse(open(filepath, 'rb'), content_type='application/pdf')
 
 
+@login_required
 def room_busy(request):
     """View that lists rooms and their busy."""
     search_form = SearchRoom()

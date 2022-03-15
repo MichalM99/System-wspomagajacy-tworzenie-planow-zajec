@@ -1,6 +1,7 @@
 import datetime
 import os
 
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import FileResponse
@@ -24,6 +25,7 @@ from schedule.utils import (check_datetime,
                             is_there_unassigned_item, validate_availability)
 
 
+@login_required
 def set_preferences(request):
     """Allows to add preferences for lecturer."""
     availability = get_availability(request)
@@ -49,6 +51,7 @@ def set_preferences(request):
                   {'form': form, 'availability': availability})
 
 
+@login_required
 def delete_availability(request, id):
     """Deletes single availability based on pk."""
     query = WeekDay.objects.get(id=id)
@@ -56,6 +59,7 @@ def delete_availability(request, id):
     return redirect(request.META['HTTP_REFERER'])
 
 
+@login_required
 def year_group_management(request):
     """View responsible for managins year's groups."""
     form = SearchYear()
@@ -82,6 +86,7 @@ def year_group_management(request):
                                                                    'page_obj': page_obj})
 
 
+@login_required
 def add_year(request):
     """View responsible for adding year."""
     if request.method == 'POST':
@@ -96,6 +101,7 @@ def add_year(request):
     return render(request, 'schedule/add_year.html', {'year_form': year_form})
 
 
+@login_required
 def manage_year(request, id):
     """Basically DetailView for Year model."""
     groups = Group.objects.filter(year_id=id).order_by('group_number')
@@ -130,6 +136,7 @@ def manage_year(request, id):
     })
 
 
+@login_required
 def add_group(request, id):
     """View responsible for adding groups to specific year."""
     if request.method == "POST":
@@ -147,6 +154,7 @@ def add_group(request, id):
     return render(request, 'schedule/add_group.html', {'form': form, 'id': id})
 
 
+@login_required
 def delete_group(request, id, pk):
     """Deletes single group based on pk."""
     query = Group.objects.get(id=id)
@@ -154,6 +162,7 @@ def delete_group(request, id, pk):
     return redirect(request.META['HTTP_REFERER'])
 
 
+@login_required
 def delete_year(request, id):
     """Deletes single group based on pk."""
     query = Year.objects.get(id=id)
@@ -161,6 +170,7 @@ def delete_year(request, id):
     return redirect(year_group_management)
 
 
+@login_required
 def manage_room(request):
     """View for managing rooms."""
     search_form = SearchRoom()
@@ -196,6 +206,7 @@ def manage_room(request):
     })
 
 
+@login_required
 def delete_room(request, id):
     """Deletes single group based on pk."""
     query = Room.objects.get(id=id)
@@ -203,6 +214,7 @@ def delete_room(request, id):
     return redirect(manage_room)
 
 
+@login_required
 def edit_room(request, id):
     """Functional DetailView for Room model."""
     data = get_object_or_404(Room, pk=id)
@@ -224,6 +236,7 @@ def edit_room(request, id):
     return render(request, 'schedule/edit_room.html', {'form': form, 'data': data, 'id': id})
 
 
+@login_required
 def delete_schedule(request, pk):
     """Deletes single schedule based on pk."""
     query = Schedule.objects.get(year_id=pk)
@@ -231,6 +244,7 @@ def delete_schedule(request, pk):
     return redirect(year_group_management)
 
 
+@login_required
 def delete_schedule_item(request, id):
     """Deletes single schedule item based on pk."""
     query = ScheduleItem.objects.get(id=id)
@@ -238,6 +252,7 @@ def delete_schedule_item(request, id):
     return redirect(request.META['HTTP_REFERER'])
 
 
+@login_required
 def create_schedule(request, id):
     """Create schedule view."""
     schedule_items = get_schedule_items_based_on_year_zip(id)
@@ -357,6 +372,7 @@ def generate_schedule(year_id, schedule_data):
     return True  # Returns True if plan could be generated
 
 
+@login_required
 def schedule_view(request, id):
     """View of specific schedule."""
     schedule_items = ScheduleItem.objects.filter(schedule=Schedule.objects.get(id=id)).order_by('weekday', 'from_hour')
@@ -419,6 +435,7 @@ def pdf_view(request, id):
     return FileResponse(open(filepath, 'rb'), content_type='application/pdf')
 
 
+@login_required
 def delete_lecture(request, id, pk):
     """Function deletes single group based on pk."""
     query = Lecture.objects.get(id=id)
