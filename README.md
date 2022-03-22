@@ -1,3 +1,5 @@
+#System for creating academic lesson plans
+
 Project written in Python using Django 4.0.1 framework for engineering thesis. The web application allows you to
 automatically generate academic lesson plans based on the availability of lecturers, class groups, classroom occupancy and
 given details such as specific types of classes, the length of an hourly unit, and the length of breaks between classes. Each of
